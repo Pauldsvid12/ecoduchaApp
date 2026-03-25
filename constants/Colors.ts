@@ -14,3 +14,4 @@ export const Colors = {
     gradientStart: '#0F2D4E',
     gradientEnd: '#0EA5E9',
   };  
+  

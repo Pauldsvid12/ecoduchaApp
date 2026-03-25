@@ -16,4 +16,3 @@ export const sesiones = [
     { mes: 'Feb', litros: 860, kwh: 28.1 },
     { mes: 'Mar', litros: 420, kwh: 13.7 },
   ];
-  
