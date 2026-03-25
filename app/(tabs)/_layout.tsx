@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
@@ -31,6 +31,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
+          headerShown: false,
           tabBarLabel: 'Inicio',
           tabBarIcon: ({ color, size }) => <TabIcon name="home-outline" color={color} size={size} />,
         }}
@@ -39,6 +40,7 @@ export default function TabLayout() {
         name="historial"
         options={{
           title: 'Historial',
+          headerShown: false,
           tabBarLabel: 'Historial',
           tabBarIcon: ({ color, size }) => <TabIcon name="list-outline" color={color} size={size} />,
         }}
@@ -47,6 +49,7 @@ export default function TabLayout() {
         name="estadisticas"
         options={{
           title: 'Estadísticas',
+          headerShown: false,
           tabBarLabel: 'Estadísticas',
           tabBarIcon: ({ color, size }) => <TabIcon name="bar-chart-outline" color={color} size={size} />,
         }}
@@ -55,6 +58,7 @@ export default function TabLayout() {
         name="configuracion"
         options={{
           title: 'Configuración',
+          headerShown: false,
           tabBarLabel: 'Config.',
           tabBarIcon: ({ color, size }) => <TabIcon name="settings-outline" color={color} size={size} />,
         }}
