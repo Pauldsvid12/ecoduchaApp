@@ -1,19 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
 
 interface Props {
   titulo: string;
   valor: string;
   unidad: string;
-  icono: string;
+  icono: keyof typeof Ionicons.glyphMap;
   color?: string;
 }
 
 export function SensorCard({ titulo, valor, unidad, icono, color = Colors.primary }: Props) {
   return (
     <View style={[styles.card, { borderTopColor: color }]}>
-      <Text style={styles.icono}>{icono}</Text>
+      <Ionicons name={icono} size={28} color={color} style={styles.icono} />
       <Text style={[styles.valor, { color }]}>{valor}</Text>
       <Text style={styles.unidad}>{unidad}</Text>
       <Text style={styles.titulo}>{titulo}</Text>
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  icono: { fontSize: 28, marginBottom: 6 },
+  icono: { marginBottom: 6 },
   valor: { fontSize: 26, fontWeight: '800' },
   unidad: { fontSize: 12, color: Colors.textLight, marginBottom: 2 },
   titulo: { fontSize: 11, color: Colors.text, textAlign: 'center', fontWeight: '600' },
