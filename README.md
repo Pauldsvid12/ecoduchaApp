@@ -1,53 +1,105 @@
-> Edited for use in IDX on 07/09/12
+# 💧 EcoDucha
+### *Inteligencia que fluye, energía que se cuida*
 
-# Welcome to your Expo app 👋
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![ESP32](https://img.shields.io/badge/Hardware-ESP32-blue.svg)](https://www.espressif.com/)
+[![React Native](https://img.shields.io/badge/App-React%20Native%2FExpo-61DAFB.svg)](https://expo.dev/)
+[![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow.svg)]()
+[![Hecho en](https://img.shields.io/badge/Hecho%20en-Cuenca%2C%20Ecuador%20-orange.svg)]()
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+---
 
-## Get started
+## ¿De donde proviene la EcoDucha?
 
-#### Android
+EcoDucha nació de una pregunta simple: *¿cuánta agua y energía botamos cada vez que nos duchamos sin darnos cuenta?*
 
-Android previews are defined as a `workspace.onStart` hook and started as a vscode task when the workspace is opened/started.
+La respuesta nos sorprendió. Un ecuatoriano promedio usa entre **60 y 100 litros** en una sola ducha. Multiplicado por todos los días del año, es una cantidad brutal. Entonces decidimos hacer algo al respecto.
 
-Note, if you can't find the task, either:
-- Rebuild the environment (using command palette: `IDX: Rebuild Environment`), or
-- Run `npm run android -- --tunnel` command manually run android and see the output in your terminal. The device should pick up this new command and switch to start displaying the output from it.
+EcoDucha es un sistema IoT que se instala en cualquier ducha eléctrica existente y te permite **monitorear en tiempo real** la temperatura del agua, el caudal y el tiempo que llevas duchándote — todo desde tu celular. Si te pasas del límite que tú mismo configuras, el sistema actúa solo.
 
-In the output of this command/task, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## El problema que resuelve
 
-You'll also find options to open the app's developer menu, reload the app, and more.
+- Las facturas de luz y agua suben cada mes sin que sepamos exactamente por qué
+- No tenemos retroalimentación en tiempo real mientras nos duchamos
+- Las duchas eléctricas no tienen control inteligente de temperatura
+- No hay datos históricos de nuestro consumo personal
 
-#### Web
+---
 
-Web previews will be started and managred automatically. Use the toolbar to manually refresh.
+## ¿Qué puede hacer EcoDucha?
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Medir temperatura** en tiempo real con sensor DS18B20
+- **Medir caudal** de agua con sensor YF-S201
+- **Cronometrar** la ducha desde que abres el grifo
+- **Cortar automáticamente** el agua cuando superas el tiempo/volumen límite
+- **Mostrar todo en la app** móvil con gráficas y estadísticas
+- **Guardar historial** de consumo por día, semana y mes
+- **Enviar alertas** antes de que te corte (para que no te agarre enjabonado)
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## Lo que usamos para construirlo
 
-```bash
-npm run reset-project
+### Hardware
+
+| Componente | Función |
+|---|---|
+| ESP32 | Cerebro del sistema, WiFi integrado |
+| DS18B20 | Sensor de temperatura del agua |
+| YF-S201 | Sensor de caudal |
+| TRIAC BTA41-800B | Control de potencia de la ducha |
+| MOC3011 | Optotriac de disparo, aislamiento |
+| Resistencia 330Ω | Protección del gate del MOC |
+
+### Software
+
+| Tecnología | Uso |
+|---|---|
+| Arduino IDE  | Firmware del ESP32 |
+| React Native + Expo | App móvil multiplataforma |
+| Supabase | Base de datos y autenticación |
+| MQTT / WebSockets | Comunicación ESP32 ↔ App |
+
+---
+
+## La app
+
+La app tiene 6 pantallas principales:
+
+1. **Dashboard** — Temperatura, caudal y timer en tiempo real
+2. **Historial** — Gráficas de consumo por día/semana/mes
+3. **Configuración** — Temperatura máxima, tiempo límite, alertas
+4. **Estadísticas de ahorro** — "Has ahorrado X litros = $Y"
+5. **Acerca de** — Info del proyecto y equipo
+
+---
+
+### Variables de entorno
+
+Crea un archivo `.env` en la carpeta `/app`:
+
+```env
+SUPABASE_URL=tu_url_aqui
+SUPABASE_ANON_KEY=tu_key_aqui
+MQTT_BROKER=tu_broker_aqui
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## El equipo
 
-To learn more about developing your project with Expo, look at the following resources:
+Somos tres estudiantes de Unidad Educativa Técnico Salesiano en Cuenca, Ecuador. Este proyecto es nuestra tesis integradora.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+| Nombre | Rol |
+|---|---|
+| Paúl Juela | Hardware & Electrónica |
+| Emiliano Jimenéz | Firmware & Backend |
+| Matías Cabrera | App móvil & Diseño |
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 💬 Contacto
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+📸 @eco.ducha.ec
