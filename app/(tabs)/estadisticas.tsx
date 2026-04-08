@@ -1,33 +1,40 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemeContext } from '../../contexts/ThemeContext';
-
-const historialData = [
-  { id: '1', fecha: '2024-05-24', duracion: 320, litros: 40, energia: 0.15, costo: 0.13 },
-  { id: '2', fecha: '2024-05-23', duracion: 450, litros: 55, energia: 0.22, costo: 0.18 },
-  { id: '3', fecha: '2024-05-22', duracion: 280, litros: 35, energia: 0.13, costo: 0.11 },
-  { id: '4', fecha: '2024-05-21', duracion: 610, litros: 75, energia: 0.30, costo: 0.25 },
-  { id: '5', fecha: '2024-05-20', duracion: 180, litros: 22, energia: 0.09, costo: 0.07 },
-  { id: '6', fecha: '2024-05-19', duracion: 400, litros: 50, energia: 0.20, costo: 0.17 },
-];
-
-const config = { tiempoLimite: 8, tempObjetivo: 38 };
+import { getHistory, DuchaData } from '../../services/storage';
 
 export default function EstadisticasScreen() {
   const { colors, theme } = useContext(ThemeContext);
+  const [registroReal, setRegistroReal] = useState<DuchaData[]>([]);
 
-  const stats = useMemo(() => {
-    const totalDuchas = historialData.length;
-    const totalLitros = historialData.reduce((sum, item) => sum + item.litros, 0);
-    const totalCosto = historialData.reduce((sum, item) => sum + item.costo, 0);
-    const duracionPromedio = historialData.reduce((sum, item) => sum + item.duracion, 0) / totalDuchas;
-    const duchasBuenas = historialData.filter(d => d.duracion <= config.tiempoLimite * 60).length;
-    const porcentajeAhorro = (duchasBuenas / totalDuchas) * 100;
-    return { totalLitros, totalCosto, duracionPromedio, porcentajeAhorro };
+  // Cargar datos reales del storage
+  useEffect(() => {
+    const cargar = async () => {
+      const h = await getHistory();
+      setRegistroReal(h);
+    };
+    cargar();
   }, []);
 
-  const maxLitrosGrafica = Math.max(...historialData.map(d => d.litros), 1);
+  const stats = useMemo(() => {
+    const totalDuchas = registroReal.length;
+    if (totalDuchas === 0) return { totalLitros: 0, totalCosto: 0, promedioLitros: 0, porcentajeAhorro: 0 };
+
+    const totalLitros = registroReal.reduce((sum, item) => sum + item.litros, 0);
+    // Calculamos costo dinámico basado en las tarifas de tu código anterior
+    const totalCosto = totalLitros * 0.003; 
+    const promedioLitros = totalLitros / totalDuchas;
+    // Consideramos "ducha buena" si es menor a 30L (puedes ajustar este umbral)
+    const duchasBuenas = registroReal.filter(d => d.litros <= 30).length;
+    const porcentajeAhorro = (duchasBuenas / totalDuchas) * 100;
+
+    return { totalLitros, totalCosto, promedioLitros, porcentajeAhorro };
+  }, [registroReal]);
+
+  const maxLitrosGrafica = useMemo(() => 
+    Math.max(...registroReal.map(d => d.litros), 10), 
+  [registroReal]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -41,9 +48,6 @@ export default function EstadisticasScreen() {
       borderRadius: 16,
       padding: 20,
       marginBottom: 16,
-      shadowColor: '#000',
-      shadowOpacity: theme === 'dark' ? 0.2 : 0.05,
-      shadowRadius: 6,
       elevation: 3,
     },
     seccionTitulo: { fontSize: 15, fontWeight: '800', color: colors.text, marginBottom: 16 },
@@ -55,7 +59,7 @@ export default function EstadisticasScreen() {
       padding: 14, 
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: colors.textLight, // Corregido
+      borderColor: colors.primary + '33', // Color primario con transparencia
     },
     statValor: { fontSize: 22, fontWeight: '800', color: colors.primary, marginTop: 4 },
     statLabel: { fontSize: 12, color: colors.text, opacity: 0.6, marginTop: 2 },
@@ -66,70 +70,70 @@ export default function EstadisticasScreen() {
       alignItems: 'flex-end', 
       borderLeftWidth: 1, 
       borderBottomWidth: 1, 
-      borderColor: colors.textLight, // Corregido
+      borderColor: colors.text + '33', 
       paddingLeft: 10, 
       justifyContent: 'space-around' 
     },
     barraContainer: { flex: 1, alignItems: 'center' },
     barra: { width: '50%', backgroundColor: colors.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-    barraEtiqueta: { fontSize: 10, color: colors.text, opacity: 0.7, marginTop: 4 },
+    barraEtiqueta: { fontSize: 9, color: colors.text, opacity: 0.7, marginTop: 4, textAlign: 'center' },
   }), [colors, theme]);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.hero}>
         <Ionicons name="bar-chart" size={52} color="#fff" />
-        <Text style={styles.heroTitulo}>Estadísticas</Text>
-        <Text style={styles.heroSub}>Tu rendimiento de ahorro</Text>
+        <Text style={styles.heroTitulo}>Estadísticas Reales</Text>
+        <Text style={styles.heroSub}>Análisis de consumo del dispositivo</Text>
       </View>
 
       <View style={styles.scrollView}>
         <View style={styles.seccion}>
-          <Text style={styles.seccionTitulo}>Resumen (últimos 7 días)</Text>
+          <Text style={styles.seccionTitulo}>Resumen Acumulado</Text>
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <Ionicons name="beaker-outline" size={24} color={colors.primary} />
-              <Text style={styles.statValor}>{stats.totalLitros.toFixed(0)}</Text>
-              <Text style={styles.statLabel}>Litros</Text>
+              <Text style={styles.statValor}>{stats.totalLitros.toFixed(1)}</Text>
+              <Text style={styles.statLabel}>Litros Totales</Text>
             </View>
             <View style={styles.statCard}>
               <Ionicons name="cash-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>${stats.totalCosto.toFixed(2)}</Text>
-              <Text style={styles.statLabel}>Gastados</Text>
+              <Text style={styles.statLabel}>Costo Est.</Text>
             </View>
           </View>
           <View style={[styles.statsRow, { marginTop: 8 }]}>
             <View style={styles.statCard}>
-              <Ionicons name="timer-outline" size={24} color={colors.primary} />
-              <Text style={styles.statValor}>{Math.round(stats.duracionPromedio / 60)} min</Text>
-              <Text style={styles.statLabel}>Ducha Prom.</Text>
+              <Ionicons name="water-outline" size={24} color={colors.primary} />
+              <Text style={styles.statValor}>{stats.promedioLitros.toFixed(1)}</Text>
+              <Text style={styles.statLabel}>Prom. L/Ducha</Text>
             </View>
             <View style={styles.statCard}>
               <Ionicons name="leaf-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>{stats.porcentajeAhorro.toFixed(0)}%</Text>
-              <Text style={styles.statLabel}>Ahorro</Text>
+              <Text style={styles.statLabel}>Eficiencia</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.seccion}>
-          <Text style={styles.seccionTitulo}>Consumo Diario (Litros)</Text>
+          <Text style={styles.seccionTitulo}>Últimas 7 Duchas (Litros)</Text>
           <View style={styles.graficaContainer}>
             <View style={styles.graficaBody}>
-              {historialData.slice(0, 7).reverse().map((d) => (
-                <View key={d.id} style={styles.barraContainer}>
+              {registroReal.slice(-7).map((d, index) => (
+                <View key={index} style={styles.barraContainer}>
                   <View style={[styles.barra, { height: `${(d.litros / maxLitrosGrafica) * 90}%` }]} />
                   <Text style={styles.barraEtiqueta}>
-                    {new Date(d.fecha).toLocaleDateString('es-ES', { day: 'numeric' })}
+                    {d.fecha.split(',')[0].slice(0, 5)} {/* Muestra solo DD/MM */}
                   </Text>
                 </View>
               ))}
+              {registroReal.length === 0 && <Text style={{color: colors.text, opacity: 0.5}}>Sin datos</Text>}
             </View>
           </View>
         </View>
       </View>
-
-      <View style={{ height: 20 }}/>
+      <View style={{ height: 40 }}/>
     </ScrollView>
   );
 }
