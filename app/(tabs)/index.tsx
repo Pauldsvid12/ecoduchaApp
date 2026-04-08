@@ -9,47 +9,37 @@ import { ThemeContext } from '@/contexts/ThemeContext';
 export default function Dashboard() {
   const { theme, colors: Colors } = useContext(ThemeContext);
 
-  // Estado de la sesión
   const [activa, setActiva] = useState(false);
-
-  // Estado de la simulación (agrupado y corregido)
   const [tiempo, setTiempo] = useState(0);
   const [tempActual, setTempActual] = useState(19.5);
   const [sim, setSim] = useState({ litros: 0, energia: 0, caudal: 0.0, corriente: 0.0 });
 
   const tempObjetivo = 38;
 
-  // --- Lógica de Simulación Corregida y Refactorizada ---
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  useEffect(() => {
     if (activa) {
-      interval = setInterval(() => {
-        // Actualizaciones de estado simples
+      intervalRef.current = setInterval(() => {
         setTiempo(t => t + 1);
         setTempActual(t => Math.min(tempObjetivo, t + Math.random() * 0.5));
 
-        // Actualización atómica del estado de la simulación
         setSim(prevSim => {
           const newCaudal = prevSim.caudal > 0 ? Math.max(0, prevSim.caudal + (Math.random() - 0.5) * 0.4) : 8.0;
           const newLitros = prevSim.litros + (newCaudal / 60);
           const newCorriente = 21 + (Math.random() - 0.5) * 1.5;
           const newEnergia = prevSim.energia + (newCorriente * 120) / 3600000;
-
-          return {
-            caudal: newCaudal,
-            litros: newLitros,
-            corriente: newCorriente,
-            energia: newEnergia,
-          };
+          return { caudal: newCaudal, litros: newLitros, corriente: newCorriente, energia: newEnergia };
         });
       }, 1000);
     } else {
-      // Resetear solo los valores fluctuantes al detener
+      if (intervalRef.current) clearInterval(intervalRef.current);
       setSim(prev => ({ ...prev, caudal: 0, corriente: 0 }));
     }
 
-    return () => { if (interval) clearInterval(interval); };
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [activa, tempObjetivo]);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
