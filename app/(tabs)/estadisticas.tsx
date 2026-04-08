@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ThemeContext } from '@/contexts/ThemeContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 
 const historialData = [
   { id: '1', fecha: '2024-05-24', duracion: 320, litros: 40, energia: 0.15, costo: 0.13 },
@@ -15,7 +15,7 @@ const historialData = [
 const config = { tiempoLimite: 8, tempObjetivo: 38 };
 
 export default function EstadisticasScreen() {
-  const { colors: Colors, theme } = useContext(ThemeContext);
+  const { colors, theme } = useContext(ThemeContext);
 
   const stats = useMemo(() => {
     const totalDuchas = historialData.length;
@@ -30,13 +30,13 @@ export default function EstadisticasScreen() {
   const maxLitrosGrafica = Math.max(...historialData.map(d => d.litros), 1);
 
   const styles = useMemo(() => StyleSheet.create({
-    container: { flex: 1, backgroundColor: Colors.background },
-    hero: { backgroundColor: Colors.dark, padding: 32, alignItems: 'center', paddingTop: 60 },
+    container: { flex: 1, backgroundColor: colors.background },
+    hero: { backgroundColor: colors.dark, padding: 32, alignItems: 'center', paddingTop: 60 },
     heroTitulo: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
     heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 },
     scrollView: { paddingTop: 16 },
     seccion: {
-      backgroundColor: Colors.card,
+      backgroundColor: colors.card,
       marginHorizontal: 16,
       borderRadius: 16,
       padding: 20,
@@ -46,19 +46,19 @@ export default function EstadisticasScreen() {
       shadowRadius: 6,
       elevation: 3,
     },
-    seccionTitulo: { fontSize: 15, fontWeight: '800', color: Colors.text, marginBottom: 16 },
+    seccionTitulo: { fontSize: 15, fontWeight: '800', color: colors.text, marginBottom: 16 },
     statsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
     statCard: { 
       flex: 1, 
-      backgroundColor: Colors.background, 
+      backgroundColor: colors.background, 
       borderRadius: 12, 
       padding: 14, 
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: Colors.textLight, // Corregido
+      borderColor: colors.textLight, // Corregido
     },
-    statValor: { fontSize: 22, fontWeight: '800', color: Colors.primary, marginTop: 4 },
-    statLabel: { fontSize: 12, color: Colors.text, opacity: 0.6, marginTop: 2 },
+    statValor: { fontSize: 22, fontWeight: '800', color: colors.primary, marginTop: 4 },
+    statLabel: { fontSize: 12, color: colors.text, opacity: 0.6, marginTop: 2 },
     graficaContainer: { marginTop: 8 },
     graficaBody: { 
       flexDirection: 'row', 
@@ -66,14 +66,14 @@ export default function EstadisticasScreen() {
       alignItems: 'flex-end', 
       borderLeftWidth: 1, 
       borderBottomWidth: 1, 
-      borderColor: Colors.textLight, // Corregido
+      borderColor: colors.textLight, // Corregido
       paddingLeft: 10, 
       justifyContent: 'space-around' 
     },
     barraContainer: { flex: 1, alignItems: 'center' },
-    barra: { width: '50%', backgroundColor: Colors.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
-    barraEtiqueta: { fontSize: 10, color: Colors.text, opacity: 0.7, marginTop: 4 },
-  }), [Colors, theme]);
+    barra: { width: '50%', backgroundColor: colors.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+    barraEtiqueta: { fontSize: 10, color: colors.text, opacity: 0.7, marginTop: 4 },
+  }), [colors, theme]);
 
   return (
     <ScrollView style={styles.container}>
@@ -88,24 +88,24 @@ export default function EstadisticasScreen() {
           <Text style={styles.seccionTitulo}>Resumen (últimos 7 días)</Text>
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
-              <Ionicons name="beaker-outline" size={24} color={Colors.primary} />
+              <Ionicons name="beaker-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>{stats.totalLitros.toFixed(0)}</Text>
               <Text style={styles.statLabel}>Litros</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="cash-outline" size={24} color={Colors.primary} />
+              <Ionicons name="cash-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>${stats.totalCosto.toFixed(2)}</Text>
               <Text style={styles.statLabel}>Gastados</Text>
             </View>
           </View>
           <View style={[styles.statsRow, { marginTop: 8 }]}>
             <View style={styles.statCard}>
-              <Ionicons name="timer-outline" size={24} color={Colors.primary} />
+              <Ionicons name="timer-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>{Math.round(stats.duracionPromedio / 60)} min</Text>
               <Text style={styles.statLabel}>Ducha Prom.</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="leaf-outline" size={24} color={Colors.primary} />
+              <Ionicons name="leaf-outline" size={24} color={colors.primary} />
               <Text style={styles.statValor}>{stats.porcentajeAhorro.toFixed(0)}%</Text>
               <Text style={styles.statLabel}>Ahorro</Text>
             </View>

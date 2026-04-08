@@ -1,16 +1,16 @@
 import { Stack } from 'expo-router';
-import { ThemeProvider, ThemeContext } from '@/contexts/ThemeContext';
+import { ThemeProvider, ThemeContext } from '../contexts/ThemeContext';
 import { useContext } from 'react';
 
 function AppLayout() {
-  const { colors: Colors } = useContext(ThemeContext);
+  const { colors } = useContext(ThemeContext);
 
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.card },
-        headerTintColor: Colors.text,
-        headerTitleStyle: { color: Colors.text, fontWeight: 'bold' },
+        headerStyle: { backgroundColor: colors.card },
+        headerTintColor: colors.text,
+        headerTitleStyle: { color: colors.text, fontWeight: 'bold' },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
