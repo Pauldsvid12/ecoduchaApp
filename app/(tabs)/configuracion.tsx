@@ -1,30 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors } from '@/constants/Colors';
+import { ThemeContext } from '@/contexts/ThemeContext';
 
 export default function Configuracion() {
+  const { theme, toggleTheme, colors: Colors } = useContext(ThemeContext);
+
   const [tempObjetivo, setTempObjetivo] = useState(38);
+  const [tiempoLimite, setTiempoLimite] = useState(10);
   const [notificaciones, setNotificaciones] = useState(true);
   const [alertaLitros, setAlertaLitros] = useState(true);
   const [nombreUsuario, setNombreUsuario] = useState('Paul');
   const [guardado, setGuardado] = useState(false);
 
   const guardar = async () => {
-    await AsyncStorage.setItem('config', JSON.stringify({ tempObjetivo, notificaciones, alertaLitros, nombreUsuario }));
+    await AsyncStorage.setItem('config', JSON.stringify({ tempObjetivo, tiempoLimite, notificaciones, alertaLitros, nombreUsuario }));
     setGuardado(true);
     setTimeout(() => setGuardado(false), 2000);
   };
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: Colors.background },
+    hero: { backgroundColor: Colors.dark, padding: 32, alignItems: 'center', paddingTop: 60 },
+    heroTitulo: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
+    heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 },
+    seccion: {
+      backgroundColor: Colors.card,
+      margin: 16,
+      marginBottom: 0,
+      borderRadius: 16,
+      padding: 20,
+      shadowColor: '#000',
+      shadowOpacity: theme === 'dark' ? 0.2 : 0.05,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    seccionTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+    seccionTitulo: { fontSize: 15, fontWeight: '800', color: Colors.text },
+    inputRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    inputLabel: { fontSize: 14, color: Colors.text },
+    input: {
+      borderWidth: 1,
+      borderColor: Colors.textLight, // Corregido
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      fontSize: 14,
+      color: Colors.text,
+      width: 160,
+      backgroundColor: Colors.background,
+    },
+    tempControl: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    tempBtn: {
+      backgroundColor: Colors.background,
+      borderRadius: 14,
+      width: 52,
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: Colors.textLight, // Corregido
+    },
+    tempValorBox: { alignItems: 'center' },
+    tempValor: { fontSize: 42, fontWeight: '900', color: Colors.primary },
+    tempUnidad: { fontSize: 24, fontWeight: '700', color: Colors.primary, opacity: 0.8 },
+    tempRango: { fontSize: 11, color: Colors.text, opacity: 0.6 },
+    switchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: Colors.textLight, // Corregido
+    },
+    switchLabel: { fontSize: 14, color: Colors.text },
+    tarifaRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: Colors.textLight, // Corregido
+    },
+    tarifaLabel: { fontSize: 14, color: Colors.text },
+    tarifaValor: { fontSize: 14, fontWeight: '700', color: Colors.text },
+    botonGuardar: {
+      backgroundColor: Colors.primary,
+      marginHorizontal: 16,
+      marginTop: 20,
+      borderRadius: 16,
+      paddingVertical: 18,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+    },
+    botonGuardarTexto: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  }), [Colors, theme]);
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-
-      {/* Hero */}
       <View style={styles.hero}>
         <Ionicons name="settings" size={52} color="#fff" />
         <Text style={styles.heroTitulo}>Configuración</Text>
         <Text style={styles.heroSub}>Personaliza tu EcoDucha</Text>
+      </View>
+
+      {/* Apariencia */}
+      <View style={styles.seccion}>
+        <View style={styles.seccionTituloRow}>
+          <Ionicons name="color-palette-outline" size={18} color={Colors.primary} />
+          <Text style={styles.seccionTitulo}> Apariencia</Text>
+        </View>
+        <View style={[styles.switchRow, { borderBottomWidth: 0 }]}>
+          <Text style={styles.switchLabel}>Tema oscuro</Text>
+          <Switch value={theme === 'dark'} onValueChange={toggleTheme} trackColor={{ false: '#E2E8F0', true: Colors.primary }} />
+        </View>
       </View>
 
       {/* Usuario */}
@@ -33,13 +123,14 @@ export default function Configuracion() {
           <Ionicons name="person-outline" size={18} color={Colors.primary} />
           <Text style={styles.seccionTitulo}> Usuario</Text>
         </View>
-        <View style={styles.inputRow}>
+        <View style={[styles.inputRow, { borderBottomWidth: 0 }]}>
           <Text style={styles.inputLabel}>Nombre</Text>
           <TextInput
             style={styles.input}
             value={nombreUsuario}
             onChangeText={setNombreUsuario}
             placeholder="Tu nombre"
+            placeholderTextColor={Colors.textLight}
           />
         </View>
       </View>
@@ -63,6 +154,26 @@ export default function Configuracion() {
           </TouchableOpacity>
         </View>
       </View>
+      
+      {/* Tiempo Límite */}
+      <View style={styles.seccion}>
+        <View style={styles.seccionTituloRow}>
+          <Ionicons name="timer-outline" size={18} color={Colors.primary} />
+          <Text style={styles.seccionTitulo}> Tiempo Límite</Text>
+        </View>
+        <View style={styles.tempControl}>
+          <TouchableOpacity style={styles.tempBtn} onPress={() => setTiempoLimite(t => Math.max(5, t - 1))}>
+            <Ionicons name="remove-outline" size={28} color={Colors.primary} />
+          </TouchableOpacity>
+          <View style={styles.tempValorBox}>
+            <Text style={styles.tempValor}>{tiempoLimite}<Text style={styles.tempUnidad}> min</Text></Text>
+            <Text style={styles.tempRango}>Rango: 5 – 20 min</Text>
+          </View>
+          <TouchableOpacity style={styles.tempBtn} onPress={() => setTiempoLimite(t => Math.min(20, t + 1))}>
+            <Ionicons name="add-outline" size={28} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Alertas */}
       <View style={styles.seccion}>
@@ -74,7 +185,7 @@ export default function Configuracion() {
           <Text style={styles.switchLabel}>Notificaciones generales</Text>
           <Switch value={notificaciones} onValueChange={setNotificaciones} trackColor={{ false: '#E2E8F0', true: Colors.primary }} />
         </View>
-        <View style={styles.switchRow}>
+        <View style={[styles.switchRow, { borderBottomWidth: 0 }]}>
           <Text style={styles.switchLabel}>Alerta al pasar 50 litros</Text>
           <Switch value={alertaLitros} onValueChange={setAlertaLitros} trackColor={{ false: '#E2E8F0', true: Colors.primary }} />
         </View>
@@ -90,13 +201,13 @@ export default function Configuracion() {
           <Text style={styles.tarifaLabel}>Costo agua</Text>
           <Text style={styles.tarifaValor}>$0.003 / litro</Text>
         </View>
-        <View style={styles.tarifaRow}>
+        <View style={[styles.tarifaRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
           <Text style={styles.tarifaLabel}>Costo energía</Text>
           <Text style={styles.tarifaValor}>$0.09 / kWh</Text>
         </View>
       </View>
 
-      {/* Guardar */}
+      {/* Botón Guardar */}
       <TouchableOpacity
         style={[styles.botonGuardar, guardado && { backgroundColor: Colors.green }]}
         onPress={guardar}
@@ -116,47 +227,3 @@ export default function Configuracion() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  hero: { backgroundColor: Colors.dark, padding: 32, alignItems: 'center' },
-  heroTitulo: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
-  heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 },
-  seccion: {
-    backgroundColor: Colors.white, margin: 16, marginBottom: 0, borderRadius: 16, padding: 20,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
-  },
-  seccionTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  seccionTitulo: { fontSize: 15, fontWeight: '800', color: Colors.dark },
-  inputRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  inputLabel: { fontSize: 14, color: Colors.text },
-  input: {
-    borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10,
-    paddingHorizontal: 14, paddingVertical: 8, fontSize: 14, color: Colors.dark, width: 160,
-  },
-  tempControl: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  tempBtn: {
-    backgroundColor: Colors.background, borderRadius: 14, width: 52, height: 52,
-    alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#E2E8F0',
-  },
-  tempValorBox: { alignItems: 'center' },
-  tempValor: { fontSize: 42, fontWeight: '900', color: Colors.primary },
-  tempRango: { fontSize: 11, color: Colors.textLight },
-  switchRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9',
-  },
-  switchLabel: { fontSize: 14, color: Colors.text },
-  tarifaRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F5F9',
-  },
-  tarifaLabel: { fontSize: 14, color: Colors.text },
-  tarifaValor: { fontSize: 14, fontWeight: '700', color: Colors.dark },
-  botonGuardar: {
-    backgroundColor: Colors.primary, marginHorizontal: 16, marginTop: 20,
-    borderRadius: 16, paddingVertical: 18, alignItems: 'center',
-    flexDirection: 'row', justifyContent: 'center',
-  },
-  botonGuardarTexto: { color: '#fff', fontSize: 16, fontWeight: '800' },
-});

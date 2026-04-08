@@ -1,122 +1,135 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useContext, useMemo } from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { StatBar } from '@/components/StatBar';
-import { estadisticasMensuales } from '@/constants/MockData';
-import { Colors } from '@/constants/Colors';
+import { ThemeContext } from '@/contexts/ThemeContext';
 
-export default function Estadisticas() {
-  const [vista, setVista] = useState<'litros' | 'kwh'>('litros');
+const historialData = [
+  { id: '1', fecha: '2024-05-24', duracion: 320, litros: 40, energia: 0.15, costo: 0.13 },
+  { id: '2', fecha: '2024-05-23', duracion: 450, litros: 55, energia: 0.22, costo: 0.18 },
+  { id: '3', fecha: '2024-05-22', duracion: 280, litros: 35, energia: 0.13, costo: 0.11 },
+  { id: '4', fecha: '2024-05-21', duracion: 610, litros: 75, energia: 0.30, costo: 0.25 },
+  { id: '5', fecha: '2024-05-20', duracion: 180, litros: 22, energia: 0.09, costo: 0.07 },
+  { id: '6', fecha: '2024-05-19', duracion: 400, litros: 50, energia: 0.20, costo: 0.17 },
+];
 
-  const maxLitros = Math.max(...estadisticasMensuales.map(e => e.litros));
-  const maxKwh = Math.max(...estadisticasMensuales.map(e => e.kwh));
-  const promedioLitros = (estadisticasMensuales.reduce((s, e) => s + e.litros, 0) / estadisticasMensuales.length).toFixed(0);
-  const promedioKwh = (estadisticasMensuales.reduce((s, e) => s + e.kwh, 0) / estadisticasMensuales.length).toFixed(1);
+const config = { tiempoLimite: 8, tempObjetivo: 38 };
 
-  const equivalencias = [
-    { icono: 'leaf-outline' as const, texto: 'Ahorrar 100L al mes equivale al impacto de plantar un árbol' },
-    { icono: 'bulb-outline' as const, texto: '1 kWh ahorrado = 10 horas de foco LED encendido' },
-    { icono: 'trending-down-outline' as const, texto: 'Con EcoDucha puedes reducir tu planilla hasta un 20%' },
-  ];
+export default function EstadisticasScreen() {
+  const { colors: Colors, theme } = useContext(ThemeContext);
+
+  const stats = useMemo(() => {
+    const totalDuchas = historialData.length;
+    const totalLitros = historialData.reduce((sum, item) => sum + item.litros, 0);
+    const totalCosto = historialData.reduce((sum, item) => sum + item.costo, 0);
+    const duracionPromedio = historialData.reduce((sum, item) => sum + item.duracion, 0) / totalDuchas;
+    const duchasBuenas = historialData.filter(d => d.duracion <= config.tiempoLimite * 60).length;
+    const porcentajeAhorro = (duchasBuenas / totalDuchas) * 100;
+    return { totalLitros, totalCosto, duracionPromedio, porcentajeAhorro };
+  }, []);
+
+  const maxLitrosGrafica = Math.max(...historialData.map(d => d.litros), 1);
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: Colors.background },
+    hero: { backgroundColor: Colors.dark, padding: 32, alignItems: 'center', paddingTop: 60 },
+    heroTitulo: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
+    heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 },
+    scrollView: { paddingTop: 16 },
+    seccion: {
+      backgroundColor: Colors.card,
+      marginHorizontal: 16,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 16,
+      shadowColor: '#000',
+      shadowOpacity: theme === 'dark' ? 0.2 : 0.05,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    seccionTitulo: { fontSize: 15, fontWeight: '800', color: Colors.text, marginBottom: 16 },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+    statCard: { 
+      flex: 1, 
+      backgroundColor: Colors.background, 
+      borderRadius: 12, 
+      padding: 14, 
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: Colors.textLight, // Corregido
+    },
+    statValor: { fontSize: 22, fontWeight: '800', color: Colors.primary, marginTop: 4 },
+    statLabel: { fontSize: 12, color: Colors.text, opacity: 0.6, marginTop: 2 },
+    graficaContainer: { marginTop: 8 },
+    graficaBody: { 
+      flexDirection: 'row', 
+      height: 150, 
+      alignItems: 'flex-end', 
+      borderLeftWidth: 1, 
+      borderBottomWidth: 1, 
+      borderColor: Colors.textLight, // Corregido
+      paddingLeft: 10, 
+      justifyContent: 'space-around' 
+    },
+    barraContainer: { flex: 1, alignItems: 'center' },
+    barra: { width: '50%', backgroundColor: Colors.primary, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+    barraEtiqueta: { fontSize: 10, color: Colors.text, opacity: 0.7, marginTop: 4 },
+  }), [Colors, theme]);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <LinearGradient colors={['#0F2D4E', '#0EA5E9']} style={styles.header}>
-        <Text style={styles.headerTitle}>Consumo mensual</Text>
-        <View style={styles.promedioRow}>
-          <View style={styles.promedioItem}>
-            <Ionicons name="water-outline" size={18} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.promedioValor}>{promedioLitros} L</Text>
-            <Text style={styles.promedioLabel}>Promedio agua/mes</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.hero}>
+        <Ionicons name="bar-chart" size={52} color="#fff" />
+        <Text style={styles.heroTitulo}>Estadísticas</Text>
+        <Text style={styles.heroSub}>Tu rendimiento de ahorro</Text>
+      </View>
+
+      <View style={styles.scrollView}>
+        <View style={styles.seccion}>
+          <Text style={styles.seccionTitulo}>Resumen (últimos 7 días)</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <Ionicons name="beaker-outline" size={24} color={Colors.primary} />
+              <Text style={styles.statValor}>{stats.totalLitros.toFixed(0)}</Text>
+              <Text style={styles.statLabel}>Litros</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="cash-outline" size={24} color={Colors.primary} />
+              <Text style={styles.statValor}>${stats.totalCosto.toFixed(2)}</Text>
+              <Text style={styles.statLabel}>Gastados</Text>
+            </View>
           </View>
-          <View style={styles.promedioItem}>
-            <Ionicons name="flash-outline" size={18} color="rgba(255,255,255,0.8)" />
-            <Text style={styles.promedioValor}>{promedioKwh} kWh</Text>
-            <Text style={styles.promedioLabel}>kWh promedio/mes</Text>
+          <View style={[styles.statsRow, { marginTop: 8 }]}>
+            <View style={styles.statCard}>
+              <Ionicons name="timer-outline" size={24} color={Colors.primary} />
+              <Text style={styles.statValor}>{Math.round(stats.duracionPromedio / 60)} min</Text>
+              <Text style={styles.statLabel}>Ducha Prom.</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="leaf-outline" size={24} color={Colors.primary} />
+              <Text style={styles.statValor}>{stats.porcentajeAhorro.toFixed(0)}%</Text>
+              <Text style={styles.statLabel}>Ahorro</Text>
+            </View>
           </View>
         </View>
-      </LinearGradient>
 
-      {/* Toggle agua / energía */}
-      <View style={styles.toggleContainer}>
-        <TouchableOpacity
-          style={[styles.toggleBtn, vista === 'litros' && styles.toggleActivo]}
-          onPress={() => setVista('litros')}
-        >
-          <Ionicons name="water-outline" size={16} color={vista === 'litros' ? Colors.dark : Colors.textLight} />
-          <Text style={[styles.toggleTexto, vista === 'litros' && styles.toggleTextoActivo]}> Agua (L)</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.toggleBtn, vista === 'kwh' && styles.toggleActivo]}
-          onPress={() => setVista('kwh')}
-        >
-          <Ionicons name="flash-outline" size={16} color={vista === 'kwh' ? Colors.dark : Colors.textLight} />
-          <Text style={[styles.toggleTexto, vista === 'kwh' && styles.toggleTextoActivo]}> Energía (kWh)</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Gráfica */}
-      <View style={styles.graficaCard}>
-        <Text style={styles.graficaTitulo}>
-          {vista === 'litros' ? 'Litros consumidos por mes' : 'Energía consumida por mes (kWh)'}
-        </Text>
-        <View style={styles.graficaContainer}>
-          {estadisticasMensuales.map((e) => (
-            <StatBar
-              key={e.mes}
-              mes={e.mes}
-              valor={vista === 'litros' ? e.litros : e.kwh}
-              maxValor={vista === 'litros' ? maxLitros : maxKwh}
-              color={vista === 'litros' ? Colors.primary : Colors.warning}
-            />
-          ))}
+        <View style={styles.seccion}>
+          <Text style={styles.seccionTitulo}>Consumo Diario (Litros)</Text>
+          <View style={styles.graficaContainer}>
+            <View style={styles.graficaBody}>
+              {historialData.slice(0, 7).reverse().map((d) => (
+                <View key={d.id} style={styles.barraContainer}>
+                  <View style={[styles.barra, { height: `${(d.litros / maxLitrosGrafica) * 90}%` }]} />
+                  <Text style={styles.barraEtiqueta}>
+                    {new Date(d.fecha).toLocaleDateString('es-ES', { day: 'numeric' })}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
       </View>
 
-      {/* Equivalencias */}
-      <View style={styles.equivalenciasCard}>
-        <Text style={styles.seccionTitulo}>¿Qué significa ese consumo?</Text>
-        {equivalencias.map((e, i) => (
-          <View key={i} style={styles.equivItem}>
-            <Ionicons name={e.icono} size={24} color={Colors.green} />
-            <Text style={styles.equivTexto}>{e.texto}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={{ height: 30 }} />
+      <View style={{ height: 20 }}/>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: { padding: 24, paddingTop: 32 },
-  headerTitle: { color: '#fff', fontSize: 22, fontWeight: '900', marginBottom: 16 },
-  promedioRow: { flexDirection: 'row', gap: 12 },
-  promedioItem: { flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 14, padding: 14, alignItems: 'center' },
-  promedioValor: { color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 6 },
-  promedioLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, marginTop: 4 },
-  toggleContainer: {
-    flexDirection: 'row', margin: 16,
-    backgroundColor: '#E2E8F0', borderRadius: 12, padding: 4,
-  },
-  toggleBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' },
-  toggleActivo: { backgroundColor: Colors.white, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  toggleTexto: { fontSize: 13, color: Colors.textLight, fontWeight: '600' },
-  toggleTextoActivo: { color: Colors.dark },
-  graficaCard: {
-    backgroundColor: Colors.white, marginHorizontal: 16, borderRadius: 16, padding: 20,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
-  },
-  graficaTitulo: { fontSize: 14, fontWeight: '700', color: Colors.dark, marginBottom: 20 },
-  graficaContainer: { flexDirection: 'row', alignItems: 'flex-end', height: 180 },
-  equivalenciasCard: {
-    backgroundColor: Colors.white, margin: 16, borderRadius: 16, padding: 20,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
-  },
-  seccionTitulo: { fontSize: 15, fontWeight: '800', color: Colors.dark, marginBottom: 16 },
-  equivItem: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14, gap: 12 },
-  equivTexto: { flex: 1, fontSize: 13, color: Colors.text, lineHeight: 20 },
-});

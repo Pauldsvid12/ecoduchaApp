@@ -1,66 +1,53 @@
-import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useContext } from 'react';
+import { ThemeContext } from '@/contexts/ThemeContext';
 
-type IoniconName = keyof typeof Ionicons.glyphMap;
+export default function TabsLayout() {
+  const { colors: Colors } = useContext(ThemeContext);
 
-function TabIcon({ name, color, size }: { name: IoniconName; color: string; size: number }) {
-  return <Ionicons name={name} size={size} color={color} />;
-}
-
-export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textLight,
         tabBarStyle: {
-          backgroundColor: Colors.white,
-          borderTopColor: '#E2E8F0',
-          height: 65,
-          paddingBottom: 10,
-          paddingTop: 6,
+          backgroundColor: Colors.card,
+          borderTopColor: Colors.textLight,
+          borderTopWidth: 1,
+          height: 60,
+          paddingBottom: 5,
+          paddingTop: 5,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
-        headerStyle: { backgroundColor: Colors.dark },
-        headerTintColor: Colors.white,
-        headerTitleStyle: { fontWeight: '800', fontSize: 18 },
+        headerShown: false, // Ocultar headers por defecto para todas las pestañas
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Dashboard',
-          headerShown: false,
-          tabBarLabel: 'Inicio',
-          tabBarIcon: ({ color, size }) => <TabIcon name="home-outline" color={color} size={size} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="historial"
         options={{
           title: 'Historial',
-          headerShown: false,
-          tabBarLabel: 'Historial',
-          tabBarIcon: ({ color, size }) => <TabIcon name="list-outline" color={color} size={size} />,
+          tabBarIcon: ({ color }) => <Ionicons name="list-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="estadisticas"
         options={{
           title: 'Estadísticas',
-          headerShown: false,
-          tabBarLabel: 'Estadísticas',
-          tabBarIcon: ({ color, size }) => <TabIcon name="bar-chart-outline" color={color} size={size} />,
+          tabBarIcon: ({ color }) => <Ionicons name="bar-chart-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="configuracion"
         options={{
-          title: 'Configuración',
-          headerShown: false,
-          tabBarLabel: 'Config.',
-          tabBarIcon: ({ color, size }) => <TabIcon name="settings-outline" color={color} size={size} />,
+          title: 'Ajustes',
+          tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
         }}
       />
     </Tabs>
