@@ -23,6 +23,14 @@ export default function Dashboard() {
 
   const currentColor = useMemo(() => getUrgencyColor(sim.litros), [sim.litros]);
 
+  const ahorro = useMemo(() => {
+    const DUCHA_ESTANDAR = 100;
+    const calculado = DUCHA_ESTANDAR - sim.litros;
+    return calculado > 0 ? calculado : 0;
+  }, [sim.litros]);
+
+  const botellasAhorradas = Math.floor(ahorro);
+
   useEffect(() => {
     if (activa) {
       intervalRef.current = setInterval(() => {
@@ -60,21 +68,32 @@ export default function Dashboard() {
 
       <View style={styles.content}>
         <View style={styles.grid}>
-          {}
           <SensorCard 
             icono="water" 
             titulo="Consumo" 
-            valor={`${sim.litros.toFixed(1)} L`} 
-            color={currentColor}
-            unidad="L" 
+            valor={sim.litros.toFixed(1)} 
+            unidad="L"
+            color={currentColor} 
           />
           <SensorCard 
             icono="speedometer" 
             titulo="Caudal" 
-            valor={`${sim.caudal.toFixed(1)} L/m`} 
-            color={Colors.primary}
-            unidad="L/m" 
+            valor={sim.caudal.toFixed(1)} 
+            unidad="L/m"
+            color={Colors.primary} 
           />
+        </View>
+
+        <View style={[styles.cardAhorro, { borderColor: currentColor }]}>
+          <View style={styles.ahorroInfo}>
+            <Ionicons name="leaf" size={24} color="#22C55E" />
+            <Text style={styles.ahorroTitulo}>Impacto Ecológico</Text>
+          </View>
+          <Text style={styles.ahorroDetalle}>Estás ahorrando el equivalente a:</Text>
+          <View style={styles.botellasRow}>
+            <Text style={styles.botellasNumero}>{botellasAhorradas}</Text>
+            <Text style={styles.botellasTexto}> botellas de 1L</Text>
+          </View>
         </View>
 
         <View style={styles.botonesRow}>
@@ -98,41 +117,21 @@ export default function Dashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { 
-    padding: 40, 
-    paddingTop: 60, 
-    borderBottomLeftRadius: 30, 
-    borderBottomRightRadius: 30, 
-    alignItems: 'center' 
-  },
-  tempContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  header: { padding: 40, paddingTop: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, alignItems: 'center' },
+  tempContainer: { alignItems: 'center', justifyContent: 'center' },
   tempValor: { color: '#fff', fontSize: 70, fontWeight: 'bold' },
   tempLabel: { color: '#fff', opacity: 0.8 },
   content: { padding: 20 },
   grid: { flexDirection: 'row', gap: 15, marginBottom: 20 },
+  cardAhorro: { backgroundColor: '#F8FAFC', borderRadius: 20, padding: 20, marginBottom: 20, borderWidth: 1, borderStyle: 'dashed' },
+  ahorroInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 5 },
+  ahorroTitulo: { fontSize: 16, fontWeight: 'bold', color: '#1E293B' },
+  ahorroDetalle: { color: '#64748B', fontSize: 14 },
+  botellasRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 10 },
+  botellasNumero: { fontSize: 32, fontWeight: 'bold', color: '#22C55E' },
+  botellasTexto: { fontSize: 16, color: '#64748B' },
   botonesRow: { flexDirection: 'row', gap: 10 },
-  btn: { 
-    flex: 1, 
-    height: 60, 
-    borderRadius: 15, 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
+  btn: { flex: 1, height: 60, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  btnReset: { 
-    width: 60, 
-    height: 60, 
-    backgroundColor: 'rgba(0,0,0,0.05)', 
-    borderRadius: 15, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  }
+  btnReset: { width: 60, height: 60, backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: 15, justifyContent: 'center', alignItems: 'center' }
 });
