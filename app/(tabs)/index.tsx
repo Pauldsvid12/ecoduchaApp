@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SensorCard } from '@/components/SensorCard';
+import { PrimaryButton } from '@/components/PrimaryButton';
 import { ThemeContext } from '@/contexts/ThemeContext';
 
 export default function Dashboard() {
@@ -15,7 +16,6 @@ export default function Dashboard() {
   const [sim, setSim] = useState({ litros: 0, energia: 0, caudal: 0.0, corriente: 0.0 });
 
   const tempObjetivo = 38;
-
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export default function Dashboard() {
       intervalRef.current = setInterval(() => {
         setTiempo(t => t + 1);
         setTempActual(t => Math.min(tempObjetivo, t + Math.random() * 0.5));
-
         setSim(prevSim => {
           const newCaudal = prevSim.caudal > 0 ? Math.max(0, prevSim.caudal + (Math.random() - 0.5) * 0.4) : 8.0;
           const newLitros = prevSim.litros + (newCaudal / 60);
@@ -36,10 +35,7 @@ export default function Dashboard() {
       if (intervalRef.current) clearInterval(intervalRef.current);
       setSim(prev => ({ ...prev, caudal: 0, corriente: 0 }));
     }
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [activa, tempObjetivo]);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -97,8 +93,6 @@ export default function Dashboard() {
     costoValor: { fontSize: 36, fontWeight: '800', color: Colors.green },
     costoLabel: { fontSize: 12, color: Colors.text, opacity: 0.6, marginTop: 4 },
     botonesRow: { paddingHorizontal: 16, marginTop: 4 },
-    botonPrincipal: { borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' },
-    botonTexto: { color: '#fff', fontSize: 18, fontWeight: '800' },
     botonReset: { marginHorizontal: 16, marginTop: 10, borderRadius: 12, paddingVertical: 12, alignItems: 'center', backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.textLight, flexDirection: 'row', justifyContent: 'center' },
     botonResetTexto: { color: Colors.text, fontSize: 15, fontWeight: '600' },
   }), [Colors, theme]);
@@ -128,6 +122,7 @@ export default function Dashboard() {
           </View>
         </View>
       </LinearGradient>
+
       <View style={styles.cardsRow}>
         <SensorCard titulo="Caudal" valor={sim.caudal.toFixed(1)} unidad="L/min" icono="water-outline" color={Colors.primary} />
         <SensorCard titulo="Corriente" valor={sim.corriente.toFixed(1)} unidad="A" icono="flash-outline" color={Colors.warning} />
@@ -136,6 +131,7 @@ export default function Dashboard() {
         <SensorCard titulo="Litros" valor={sim.litros.toFixed(1)} unidad="L" icono="beaker-outline" color={Colors.accent} />
         <SensorCard titulo="Energía" valor={(sim.energia * 1000).toFixed(0)} unidad="Wh" icono="battery-charging-outline" color={Colors.green} />
       </View>
+
       <View style={styles.tiempoCostoShadow}>
         <View style={styles.tiempoCostoContent}>
           <View style={styles.tiempoBox}>
@@ -150,16 +146,18 @@ export default function Dashboard() {
           </View>
         </View>
       </View>
+
+      {/* ✅ ANTES: TouchableOpacity con ~15 líneas de estilos inline. AHORA: PrimaryButton */}
       <View style={styles.botonesRow}>
-        <TouchableOpacity
-          style={[styles.botonPrincipal, { backgroundColor: activa ? Colors.danger : Colors.green }]}
+        <PrimaryButton
+          label={activa ? 'Finalizar Ducha' : 'Iniciar Ducha'}
+          icono={activa ? 'stop-circle-outline' : 'play-circle-outline'}
           onPress={toggleSesion}
+          color={activa ? Colors.danger : Colors.green}
           disabled={!activa && tiempo > 0}
-        >
-          <Ionicons name={activa ? 'stop-circle-outline' : 'play-circle-outline'} size={24} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.botonTexto}>{activa ? 'Finalizar Ducha' : 'Iniciar Ducha'}</Text>
-        </TouchableOpacity>
+        />
       </View>
+
       {tiempo > 0 && !activa && (
         <TouchableOpacity style={styles.botonReset} onPress={resetear}>
           <Ionicons name="refresh-outline" size={18} color={Colors.text} style={{ marginRight: 6 }} />

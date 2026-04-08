@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { getHistory, clearHistory, DuchaData } from '../../services/storage';
+import { ScreenHeader } from '@/components/ScreenHeader';
 
 export default function HistorialScreen() {
   const { colors, theme } = useContext(ThemeContext);
@@ -10,7 +11,7 @@ export default function HistorialScreen() {
 
   const cargarDatos = async () => {
     const data = await getHistory();
-    setRegistro(data.reverse()); 
+    setRegistro(data.reverse());
   };
 
   useEffect(() => {
@@ -19,9 +20,6 @@ export default function HistorialScreen() {
 
   const styles = useMemo(() => StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
-    hero: { backgroundColor: colors.dark, padding: 32, alignItems: 'center', paddingTop: 60, paddingBottom: 24 },
-    heroTitulo: { color: '#fff', fontSize: 26, fontWeight: '900', marginTop: 8 },
-    heroSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 },
     card: {
       backgroundColor: colors.card,
       marginHorizontal: 16,
@@ -40,8 +38,14 @@ export default function HistorialScreen() {
     stat: { flexDirection: 'row', alignItems: 'center' },
     statText: { color: colors.text, fontSize: 13, marginLeft: 4, opacity: 0.8 },
     litrosText: { color: colors.primary, fontSize: 18, fontWeight: '800' },
-    empty: { textAlign: 'center', marginTop: 40, color: colors.text, opacity: 0.5 }
+    empty: { textAlign: 'center', marginTop: 40, color: colors.text, opacity: 0.5 },
   }), [colors, theme]);
+
+  const botonBorrar = (
+    <TouchableOpacity onLongPress={async () => { await clearHistory(); cargarDatos(); }}>
+      <Ionicons name="trash-outline" size={24} color="#fff" />
+    </TouchableOpacity>
+  );
 
   const renderItem = ({ item }: { item: DuchaData }) => (
     <View style={styles.card}>
@@ -55,7 +59,7 @@ export default function HistorialScreen() {
         </View>
         <View style={styles.cardStats}>
           <View style={styles.stat}>
-            <Ionicons name="speedometer-outline" size={14} color={colors.text} style={{ opacity: 0.6 }}/>
+            <Ionicons name="speedometer-outline" size={14} color={colors.text} style={{ opacity: 0.6 }} />
             <Text style={styles.statText}>{item.caudal} L/m</Text>
           </View>
         </View>
@@ -65,17 +69,13 @@ export default function HistorialScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.hero}>
-        <TouchableOpacity 
-          onLongPress={async () => { await clearHistory(); cargarDatos(); }}
-          style={{ position: 'absolute', right: 20, top: 60 }}
-        >
-          <Ionicons name="trash-outline" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Ionicons name="list" size={52} color="#fff" />
-        <Text style={styles.heroTitulo}>Historial Real</Text>
-        <Text style={styles.heroSub}>Datos guardados desde el simulador</Text>
-      </View>
+      {/* ✅ ANTES: ~10 líneas de View/Text repetidas. AHORA: 1 componente */}
+      <ScreenHeader
+        titulo="Historial Real"
+        subtitulo="Datos guardados desde el simulador"
+        icono="list"
+        rightSlot={botonBorrar}
+      />
       <FlatList
         data={registro}
         renderItem={renderItem}
