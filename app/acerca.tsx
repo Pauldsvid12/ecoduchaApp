@@ -15,11 +15,10 @@ export default function Dashboard() {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // --- LÓGICA DE COLORES (CORAZÓN DEL COMMIT 1) ---
   const getUrgencyColor = (litros: number) => {
-    if (litros < 15) return '#22C55E'; // Verde/Azul: Todo bien
-    if (litros < 30) return '#F59E0B'; // Naranja: Advertencia
-    return '#EF4444';                // Rojo: Exceso
+    if (litros < 15) return '#22C55E'; 
+    if (litros < 30) return '#F59E0B'; 
+    return '#EF4444';                
   };
 
   const currentColor = useMemo(() => getUrgencyColor(sim.litros), [sim.litros]);
@@ -28,12 +27,12 @@ export default function Dashboard() {
     if (activa) {
       intervalRef.current = setInterval(() => {
         setTiempo(t => t + 1);
-        setTempActual(t => Math.min(38, t + 0.2)); // Sube hasta 38°C
+        setTempActual(t => Math.min(38, t + 0.2)); 
 
         setSim(prev => ({
           ...prev,
           caudal: 8.5,
-          litros: prev.litros + (8.5 / 60) // Suma litros por segundo
+          litros: prev.litros + (8.5 / 60) 
         }));
       }, 1000);
     } else {
@@ -61,9 +60,21 @@ export default function Dashboard() {
 
       <View style={styles.content}>
         <View style={styles.grid}>
-          {/* La tarjeta de litros ahora cambia de color dinámicamente */}
-          <SensorCard icon="water" label="Consumo" value={`${sim.litros.toFixed(1)} L`} color={currentColor} />
-          <SensorCard icon="speedometer" label="Caudal" value={`${sim.caudal.toFixed(1)} L/m`} color={Colors.primary} />
+          {}
+          <SensorCard 
+            icono="water" 
+            titulo="Consumo" 
+            valor={`${sim.litros.toFixed(1)} L`} 
+            color={currentColor}
+            unidad="L" 
+          />
+          <SensorCard 
+            icono="speedometer" 
+            titulo="Caudal" 
+            valor={`${sim.caudal.toFixed(1)} L/m`} 
+            color={Colors.primary}
+            unidad="L/m" 
+          />
         </View>
 
         <View style={styles.botonesRow}>
@@ -71,7 +82,7 @@ export default function Dashboard() {
             style={[styles.btn, { backgroundColor: activa ? '#64748B' : currentColor }]} 
             onPress={toggleSesion}
           >
-            <Text style={styles.btnText}>{activa ? 'Pausar' : 'Empezar Ducha'}</Text>
+            <Text style={styles.btnText}>{activa ? (tiempo > 0 ? 'Pausar' : 'Cerrar') : 'Empezar Ducha'}</Text>
           </TouchableOpacity>
           
           {!activa && tiempo > 0 && (
@@ -87,13 +98,41 @@ export default function Dashboard() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { padding: 40, paddingTop: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, alignItems: 'center' },
+  header: { 
+    padding: 40, 
+    paddingTop: 60, 
+    borderBottomLeftRadius: 30, 
+    borderBottomRightRadius: 30, 
+    alignItems: 'center' 
+  },
+  tempContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   tempValor: { color: '#fff', fontSize: 70, fontWeight: 'bold' },
   tempLabel: { color: '#fff', opacity: 0.8 },
   content: { padding: 20 },
   grid: { flexDirection: 'row', gap: 15, marginBottom: 20 },
   botonesRow: { flexDirection: 'row', gap: 10 },
-  btn: { flex: 1, height: 60, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  btn: { 
+    flex: 1, 
+    height: 60, 
+    borderRadius: 15, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   btnText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  btnReset: { width: 60, height: 60, backgroundColor: '#E2E8F0', borderRadius: 15, justifyContent: 'center', alignItems: 'center' }
+  btnReset: { 
+    width: 60, 
+    height: 60, 
+    backgroundColor: 'rgba(0,0,0,0.05)', 
+    borderRadius: 15, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  }
 });
