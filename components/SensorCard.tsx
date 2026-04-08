@@ -12,30 +12,37 @@ interface Props {
 }
 
 export function SensorCard({ titulo, valor, unidad, icono, color = Colors.primary }: Props) {
+  // Contenedor exterior para la sombra (sin fondo)
   return (
-    <View style={[styles.card, { borderTopColor: color }]}>
-      <Ionicons name={icono} size={28} color={color} style={styles.icono} />
-      <Text style={[styles.valor, { color }]}>{valor}</Text>
-      <Text style={styles.unidad}>{unidad}</Text>
-      <Text style={styles.titulo}>{titulo}</Text>
+    <View style={[styles.shadowContainer, { shadowColor: color }]}>
+      {/* Contenedor interior para el contenido (con fondo y bordes) */}
+      <View style={styles.cardContent}>
+        <Ionicons name={icono} size={28} color={color} style={styles.icono} />
+        <Text style={[styles.valor, { color }]}>{valor}</Text>
+        <Text style={styles.unidad}>{unidad}</Text>
+        <Text style={styles.titulo}>{titulo}</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.white,
+  shadowContainer: {
+    flex: 1,
+    marginHorizontal: 4,
+    // Estilos de sombra para iOS
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    // Elevación para la sombra en Android
+    elevation: 8,
+  },
+  cardContent: {
+    backgroundColor: 'white',
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 4,
-    borderTopWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    overflow: 'hidden', // Asegura que el contenido respete los bordes redondeados
   },
   icono: { marginBottom: 6 },
   valor: { fontSize: 26, fontWeight: '800' },

@@ -98,18 +98,20 @@ export default function Dashboard() {
       </View>
 
       {/* Tiempo y costo */}
-      <View style={styles.tiempoCosto}>
-        <View style={styles.tiempoBox}>
-          <Ionicons name="timer-outline" size={18} color={Colors.textLight} style={{ marginBottom: 4 }} />
-          <Text style={styles.tiempoValor}>
-            {String(minutos).padStart(2, '0')}:{String(segundos).padStart(2, '0')}
-          </Text>
-          <Text style={styles.tiempoLabel}>Duración</Text>
-        </View>
-        <View style={styles.costoBox}>
-          <Ionicons name="cash-outline" size={18} color={Colors.textLight} style={{ marginBottom: 4 }} />
-          <Text style={styles.costoValor}>${costo.toFixed(3)}</Text>
-          <Text style={styles.costoLabel}>Costo estimado</Text>
+      <View style={styles.tiempoCostoShadow}>
+        <View style={styles.tiempoCostoContent}>
+          <View style={styles.tiempoBox}>
+            <Ionicons name="timer-outline" size={18} color={Colors.textLight} style={{ marginBottom: 4 }} />
+            <Text style={styles.tiempoValor}>
+              {String(minutos).padStart(2, '0')}:{String(segundos).padStart(2, '0')}
+            </Text>
+            <Text style={styles.tiempoLabel}>Duración</Text>
+          </View>
+          <View style={styles.costoBox}>
+            <Ionicons name="cash-outline" size={18} color={Colors.textLight} style={{ marginBottom: 4 }} />
+            <Text style={styles.costoValor}>${costo.toFixed(3)}</Text>
+            <Text style={styles.costoLabel}>Costo estimado</Text>
+          </View>
         </View>
       </View>
 
@@ -158,10 +160,19 @@ const styles = StyleSheet.create({
   },
   barraRelleno: { height: '100%', backgroundColor: Colors.green, borderRadius: 8 },
   cardsRow: { flexDirection: 'row', paddingHorizontal: 16, paddingTop: 16, gap: 8 },
-  tiempoCosto: {
-    flexDirection: 'row', margin: 16, backgroundColor: Colors.white,
-    borderRadius: 16, overflow: 'hidden',
-    shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 8, elevation: 3,
+  tiempoCostoShadow: {
+    margin: 16,
+    shadowColor: Colors.dark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  tiempoCostoContent: {
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
   tiempoBox: { flex: 1, alignItems: 'center', padding: 20, borderRightWidth: 1, borderRightColor: '#F1F5F9' },
   tiempoValor: { fontSize: 36, fontWeight: '800', color: Colors.dark },
