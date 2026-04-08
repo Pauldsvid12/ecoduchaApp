@@ -4,13 +4,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Linking } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
 const equipo: { nombre: string; rol: string; icono: IoniconName }[] = [
   { nombre: 'Paul Juela', rol: 'Programación ESP32 & IoT', icono: 'code-slash-outline' },
-  { nombre: 'Integrante 2', rol: 'Diseño de Hardware & Circuitos', icono: 'flash-outline' },
-  { nombre: 'Integrante 3', rol: 'Interfaz Nextion & Sensores', icono: 'desktop-outline' },
+  { nombre: 'Matías Cabrera', rol: 'Diseño de Hardware & Circuitos', icono: 'flash-outline' },
+  { nombre: 'Alejandro Jiménez', rol: 'Interfaz Nextion & Sensores', icono: 'desktop-outline' },
 ];
 
 const hardware: { icono: IoniconName; nombre: string; desc: string }[] = [
@@ -23,6 +24,7 @@ const hardware: { icono: IoniconName; nombre: string; desc: string }[] = [
 ];
 
 export default function Acerca() {
+  const router = useRouter();
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
@@ -88,6 +90,15 @@ export default function Acerca() {
         </View>
       </View>
 
+      {/* Botón de Salida */}
+      <TouchableOpacity
+        style={styles.exitBtn}
+        onPress={() => router.back()}
+      >
+        <Ionicons name="arrow-back-outline" size={20} color="#fff" style={{ marginRight: 8 }} />
+        <Text style={styles.webBtnTexto}>Regresar a la vista principal</Text>
+      </TouchableOpacity>
+
       {/* Botón web */}
       <TouchableOpacity
         style={styles.webBtn}
@@ -138,6 +149,11 @@ const styles = StyleSheet.create({
   miembroRol: { fontSize: 12, color: Colors.textLight, marginTop: 2 },
   institucionRow: { flexDirection: 'row', alignItems: 'center', marginTop: 14, justifyContent: 'center' },
   institucion: { fontSize: 13, color: Colors.primary, fontWeight: '600' },
+  exitBtn: {
+    backgroundColor: Colors.primary, marginHorizontal: 16, marginTop: 20,
+    borderRadius: 16, paddingVertical: 16, alignItems: 'center',
+    flexDirection: 'row', justifyContent: 'center',
+  },
   webBtn: {
     backgroundColor: Colors.dark, marginHorizontal: 16, marginTop: 20,
     borderRadius: 16, paddingVertical: 16, alignItems: 'center',
