@@ -75,7 +75,6 @@ export default function Configuracion() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* ✅ ANTES: ~10 líneas de View/Text/Ionicons. AHORA: 1 componente */}
       <ScreenHeader
         titulo="Configuración"
         subtitulo="Sincronización con EcoDucha"
@@ -83,7 +82,6 @@ export default function Configuracion() {
       />
 
       <View style={{ paddingTop: 16 }}>
-        {/* ✅ ANTES: View + View seccionTituloRow + Text + Switch inline. AHORA: SectionCard + SwitchRow */}
         <SectionCard titulo="Apariencia" icono="color-palette-outline">
           <SwitchRow
             label="Tema oscuro"
@@ -110,17 +108,18 @@ export default function Configuracion() {
             <TouchableOpacity style={styles.tempBtn} onPress={() => setTempObjetivo(t => Math.max(20, t - 1))}>
               <Ionicons name="remove-outline" size={28} color={colors.primary} />
             </TouchableOpacity>
+
             <View style={styles.tempValorBox}>
               <Text style={styles.tempValor}>{tempObjetivo}°C</Text>
               <Text style={styles.tempRango}>Rango: 20°C – 45°C</Text>
             </View>
+
             <TouchableOpacity style={styles.tempBtn} onPress={() => setTempObjetivo(t => Math.min(45, t + 1))}>
               <Ionicons name="add-outline" size={28} color={colors.primary} />
             </TouchableOpacity>
           </View>
         </SectionCard>
 
-        {/* ✅ ANTES: dos bloques switchRow con View+Text+Switch cada uno. AHORA: SwitchRow */}
         <SectionCard titulo="Alertas de Consumo" icono="notifications-outline">
           <SwitchRow
             label="Notificaciones generales"
@@ -134,7 +133,6 @@ export default function Configuracion() {
           />
         </SectionCard>
 
-        {/* ✅ ANTES: tarifaRow inline con estilos repetidos. AHORA: TarifaRow */}
         <SectionCard titulo="Tarifas" icono="cash-outline">
           <TarifaRow label="Tarifa agua" valor="$0.003 / L" />
           <TarifaRow label="Tarifa energía" valor="$0.09 / kWh" divider />
@@ -142,7 +140,6 @@ export default function Configuracion() {
         </SectionCard>
       </View>
 
-      {/* ✅ ANTES: ~15 líneas de TouchableOpacity con estilos propios. AHORA: PrimaryButton */}
       <View style={styles.botonesArea}>
         <PrimaryButton
           label={guardado ? 'Sincronizado con Éxito' : 'Sincronizar Ajustes'}
