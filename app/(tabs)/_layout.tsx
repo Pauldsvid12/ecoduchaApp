@@ -1,198 +1,207 @@
-import { Tabs, usePathname } from 'expo-router';
-import { useContext, useCallback } from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Tabs } from 'expo-router';
+import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
-  interpolateColor,
-  Easing,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, History, BarChart2, Settings } from 'lucide-react-native';
-import { ThemeContext } from '@/contexts/ThemeContext';
-import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  Droplets,
+  BarChart3,
+  History,
+  Info,
+  LucideIcon,
+} from 'lucide-react-native';
 
-// ─── Configuración de tabs ────────────────────────────────────────────────────
-const TABS = [
-  { name: 'index',        label: 'Inicio',       Icon: Home      },
-  { name: 'historial',    label: 'Historial',    Icon: History   },
-  { name: 'estadisticas', label: 'Estadísticas', Icon: BarChart2 },
-  { name: 'configuracion',label: 'Ajustes',      Icon: Settings  },
-] as const;
+type TabButtonProps = BottomTabBarButtonProps & {
+  label: string;
+  Icon: LucideIcon;
+};
 
-// ─── Componente de cada tab ───────────────────────────────────────────────────
-function TabButton({
-  tab,
-  isActive,
-  onPress,
-}: {
-  tab: (typeof TABS)[number];
-  isActive: boolean;
-  onPress: () => void;
-}) {
-  const { colors } = useContext(ThemeContext);
-  const scale = useSharedValue(1);
-  const progress = useSharedValue(isActive ? 1 : 0);
+function TabButton(props: TabButtonProps) {
+  const { accessibilityState, onPress, onLongPress, label, Icon } = props;
+  const focused = Boolean(accessibilityState?.selected);
 
-  // Sincronizar progress cuando cambia isActive externamente
-  if (progress.value !== (isActive ? 1 : 0)) {
-    progress.value = withTiming(isActive ? 1 : 0, {
-      duration: 250,
-      easing: Easing.out(Easing.cubic),
+  const scale = useSharedValue(focused ? 1 : 0.98);
+  const lift = useSharedValue(focused ? -6 : 0);
+  const labelOpacity = useSharedValue(focused ? 1 : 0.72);
+
+  useEffect(() => {
+    scale.value = withSpring(focused ? 1 : 0.98, {
+      damping: 14,
+      stiffness: 180,
     });
-  }
-
-  const handlePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    scale.value = withSpring(0.88, { damping: 10, stiffness: 300 }, () => {
-      scale.value = withSpring(1, { damping: 12, stiffness: 200 });
+    lift.value = withSpring(focused ? -6 : 0, {
+      damping: 14,
+      stiffness: 180,
     });
-    onPress();
-  }, [onPress]);
+    labelOpacity.value = withTiming(focused ? 1 : 0.72, {
+      duration: 180,
+    });
+  }, [focused, labelOpacity, lift, scale]);
 
-  // Contenedor del ícono: píldora activa animada
-  const pillStyle = useAnimatedStyle(() => ({
-    backgroundColor: withTiming(
-      isActive ? colors.primary + '22' : 'transparent',
-      { duration: 250 }
-    ),
-    transform: [{ scale: scale.value }],
+  const animatedButton = useAnimatedStyle(() => ({
+    transform: [{ translateY: lift.value }, { scale: scale.value }],
   }));
 
-  // Color del ícono y label
-  const iconColor = isActive ? colors.primary : colors.textLight;
-  const labelStyle = useAnimatedStyle(() => ({
-    color: withTiming(isActive ? colors.primary : colors.textLight, {
-      duration: 250,
-    }),
-    fontWeight: isActive ? '700' : '400',
+  const animatedLabel = useAnimatedStyle(() => ({
+    opacity: labelOpacity.value,
   }));
 
   return (
     <Pressable
-      onPress={handlePress}
-      style={styles.tabButton}
-      accessibilityRole="button"
-      accessibilityLabel={tab.label}
-      accessibilityState={{ selected: isActive }}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.pressable}
     >
-      <Animated.View style={[styles.pill, pillStyle]}>
-        <tab.Icon
-          size={22}
-          color={iconColor}
-          strokeWidth={isActive ? 2.2 : 1.6}
-        />
+      <Animated.View style={[styles.tabItemWrap, animatedButton]}>
+        {focused ? (
+          <LinearGradient
+            colors={['#06B6D4', '#3B82F6', '#8B5CF6']}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.activePill}
+          >
+            <Icon size={18} color="#FFFFFF" strokeWidth={2.4} />
+            <Animated.Text style={[styles.activeLabel, animatedLabel]}>
+              {label}
+            </Animated.Text>
+          </LinearGradient>
+        ) : (
+          <View style={styles.inactivePill}>
+            <Icon size={18} color="rgba(186,230,253,0.9)" strokeWidth={2.2} />
+            <Animated.Text style={[styles.inactiveLabel, animatedLabel]}>
+              {label}
+            </Animated.Text>
+          </View>
+        )}
       </Animated.View>
-      <Animated.Text style={[styles.label, labelStyle]} numberOfLines={1}>
-        {tab.label}
-      </Animated.Text>
     </Pressable>
   );
 }
 
-// ─── Custom Tab Bar ───────────────────────────────────────────────────────────
-function CustomTabBar({ state, navigation }: { state: any; navigation: any }) {
-  const { colors } = useContext(ThemeContext);
-  const insets = useSafeAreaInsets();
-
-  return (
-    <View
-      style={[
-        styles.tabBarWrapper,
-        {
-          backgroundColor: colors.card,
-          borderTopColor: colors.textLight + '33',
-          paddingBottom: Math.max(insets.bottom, 8),
-        },
-      ]}
-    >
-      {/* Línea decorativa superior */}
-      <View
-        style={[styles.topAccent, { backgroundColor: colors.primary + '40' }]}
-      />
-
-      <View style={styles.tabBarInner}>
-        {TABS.map((tab, index) => {
-          const isActive = state.index === index;
-          return (
-            <TabButton
-              key={tab.name}
-              tab={tab}
-              isActive={isActive}
-              onPress={() => {
-                const event = navigation.emit({
-                  type: 'tabPress',
-                  target: state.routes[index].key,
-                  canPreventDefault: true,
-                });
-                if (!isActive && !event.defaultPrevented) {
-                  navigation.navigate(state.routes[index].name);
-                }
-              }}
-            />
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-// ─── Layout principal ─────────────────────────────────────────────────────────
 export default function TabsLayout() {
   return (
     <Tabs
-      tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+        sceneStyle: { backgroundColor: 'transparent' },
+        tabBarStyle: styles.tabBar,
+        tabBarShowLabel: false,
+        tabBarItemStyle: styles.tabBarItem,
+      }}
     >
-      {TABS.map((tab) => (
-        <Tabs.Screen key={tab.name} name={tab.name} />
-      ))}
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: 'Inicio',
+          tabBarButton: (props) => (
+            <TabButton {...props} label="Inicio" Icon={Droplets} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="historial"
+        options={{
+          title: 'Historial',
+          tabBarButton: (props) => (
+            <TabButton {...props} label="Historial" Icon={History} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="estadisticas"
+        options={{
+          title: 'Stats',
+          tabBarButton: (props) => (
+            <TabButton {...props} label="Stats" Icon={BarChart3} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="acerca"
+        options={{
+          title: 'Acerca',
+          tabBarButton: (props) => (
+            <TabButton {...props} label="Acerca" Icon={Info} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  tabBarWrapper: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-      },
-      android: { elevation: 12 },
-    }),
+  tabBar: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    bottom: 14,
+    height: 74,
+    paddingTop: 10,
+    paddingBottom: 12,
+    paddingHorizontal: 10,
+    backgroundColor: 'rgba(2, 6, 23, 0.88)',
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(125, 211, 252, 0.16)',
+    borderRadius: 26,
+    shadowColor: '#38BDF8',
+    shadowOpacity: 0.18,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 14,
   },
-  topAccent: {
-    height: 1,
-    marginHorizontal: 24,
-    borderRadius: 1,
+  tabBarItem: {
+    height: 50,
   },
-  tabBarInner: {
-    flexDirection: 'row',
-    paddingTop: 8,
-    paddingHorizontal: 8,
-  },
-  tabButton: {
+  pressable: {
     flex: 1,
-    alignItems: 'center',
-    gap: 3,
-    paddingVertical: 4,
-    minHeight: 44, // touch target mínimo
-  },
-  pill: {
-    width: 44,
-    height: 32,
-    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  label: {
-    fontSize: 10,
+  tabItemWrap: {
+    minWidth: 76,
+    maxWidth: 110,
+  },
+  activePill: {
+    minHeight: 46,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: '#60A5FA',
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  inactivePill: {
+    minHeight: 46,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(15, 23, 42, 0.46)',
+  },
+  activeLabel: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
     letterSpacing: 0.2,
+  },
+  inactiveLabel: {
+    color: '#CFFAFE',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.15,
   },
 });
