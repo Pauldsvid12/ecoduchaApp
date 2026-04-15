@@ -1,49 +1,42 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { useContext } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import {
-  SafeAreaProvider,
-  initialWindowMetrics,
-} from 'react-native-safe-area-context';
-import AnimatedFrame from '@/components/organisms/AnimatedFrame';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeContext, ThemeProvider } from '../contexts/ThemeContext';
+
+function AppLayout() {
+  const { colors } = useContext(ThemeContext);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle:      { backgroundColor: colors.card },
+        headerTintColor:  colors.primary,
+        headerTitleStyle: { color: colors.text, fontWeight: '800' },
+        animation:        'slide_from_right',
+      }}
+    >
+      <Stack.Screen name="(tabs)"   options={{ headerShown: false }} />
+      <Stack.Screen name="welcome"  options={{ headerShown: false }} />
+      <Stack.Screen
+        name="acerca"
+        options={{
+          presentation: 'modal',
+          title:        'Acerca de EcoDucha',
+        }}
+      />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={styles.root}>
-      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-        <StatusBar style="light" />
-        <AnimatedFrame
-          style={styles.shell}
-          contentContainerStyle={styles.shellContent}
-          backgroundColor="#020617"
-          radius={30}
-          inset={8}
-        >
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'fade',
-              contentStyle: { backgroundColor: 'transparent' },
-            }}
-          />
-        </AnimatedFrame>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <AppLayout />
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#020617',
-  },
-  shell: {
-    flex: 1,
-    backgroundColor: '#020617',
-  },
-  shellContent: {
-    flex: 1,
-  },
-});
