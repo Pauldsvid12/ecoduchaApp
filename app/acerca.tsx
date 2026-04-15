@@ -1,183 +1,153 @@
-import React, { useContext, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
+import Animated, { FadeInDown, useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  Code2, Cpu, Droplets, Thermometer, Zap, Monitor,
+  Users, School, Globe, Layers, Database, Waves,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { lightColors } from '../constants/Colors';
 
 type ColorScheme = typeof lightColors;
-type IoniconName = keyof typeof Ionicons.glyphMap;
 
-const equipo: { nombre: string; rol: string; icono: IoniconName }[] = [
-  { nombre: 'Paul Juela', rol: 'Programación ESP32 & IoT', icono: 'code-slash-outline' },
-  { nombre: 'Matías Cabrera', rol: 'Diseño de Hardware & Circuitos', icono: 'flash-outline' },
-  { nombre: 'Alejandro Jiménez', rol: 'Interfaz Nextion & Sensores', icono: 'desktop-outline' },
+const equipo = [
+  { nombre: 'Paul Juela',         rol: 'Programación ESP32 & IoT',       Icon: Code2    },
+  { nombre: 'Matías Cabrera',     rol: 'Diseño de Hardware & Circuitos',  Icon: Zap      },
+  { nombre: 'Alejandro Jiménez',  rol: 'Interfaz Nextion & Sensores',     Icon: Monitor  },
 ];
 
-const hardware: { icono: IoniconName; nombre: string; desc: string }[] = [
-  { icono: 'hardware-chip-outline', nombre: 'ESP32', desc: 'Microcontrolador principal con WiFi integrado' },
-  { icono: 'water-outline', nombre: 'YF-S201', desc: 'Sensor de caudal de agua' },
-  { icono: 'thermometer-outline', nombre: 'DS18B20', desc: 'Sensor de temperatura sumergible' },
-  { icono: 'flash-outline', nombre: 'ACS712', desc: 'Sensor de corriente eléctrica (Efecto Hall)' },
-  { icono: 'power-outline', nombre: 'BTA41 TRIAC', desc: 'Control de potencia de la resistencia' },
-  { icono: 'phone-portrait-outline', nombre: 'Nextion 3.5"', desc: 'Pantalla táctil de interfaz de usuario' },
+const hardware = [
+  { Icon: Cpu,         nombre: 'ESP32',          desc: 'Microcontrolador principal con WiFi integrado' },
+  { Icon: Droplets,    nombre: 'YF-S201',         desc: 'Sensor de caudal de agua' },
+  { Icon: Thermometer, nombre: 'DS18B20',          desc: 'Sensor de temperatura sumergible' },
+  { Icon: Zap,         nombre: 'ACS712',           desc: 'Sensor de corriente eléctrica (Efecto Hall)' },
+  { Icon: Layers,      nombre: 'BTA41 TRIAC',      desc: 'Control de potencia de la resistencia' },
+  { Icon: Monitor,     nombre: 'Nextion 3.5"',     desc: 'Pantalla táctil de interfaz de usuario' },
+  { Icon: Database,    nombre: 'LittleFS',          desc: 'Sistema de archivos en flash del ESP32' },
 ];
 
-export default function Acerca() {
-  const router = useRouter();
-  const { colors, theme } = useContext(ThemeContext);
-  const styles = useMemo(() => createStyles(colors, theme), [colors, theme]);
+function WebButton({ colors }: { colors: ColorScheme }) {
+  const scale = useSharedValue(1);
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <Pressable
+      onPressIn={() => { scale.value = withSpring(0.96); }}
+      onPressOut={() => { scale.value = withSpring(1); }}
+      onPress={() => Linking.openURL('https://pauldsvid12.github.io/ecoducha/')}
+    >
+      <Animated.View style={[styles.webBtn, { backgroundColor: colors.dark }, animStyle]}>
+        <Globe size={20} color="#fff" strokeWidth={2} />
+        <Text style={styles.webBtnTexto}>Ver Página del Proyecto</Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+export default function Acerca() {
+  const { colors } = useContext(ThemeContext);
+  const insets = useSafeAreaInsets();
+
+  return (
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
+    >
       <LinearGradient colors={[colors.gradientStart, colors.gradientEnd]} style={styles.header}>
-        <Ionicons name="water" size={64} color="#fff" />
+        <Waves size={64} color="#fff" strokeWidth={1.2} />
         <Text style={styles.nombre}>EcoDucha</Text>
         <Text style={styles.version}>v1.0 — 2026</Text>
         <Text style={styles.slogan}>"Inteligencia que fluye, energía que se cuida."</Text>
       </LinearGradient>
 
-      <View style={styles.card}>
+      <Animated.View entering={FadeInDown.delay(100).springify()} style={[styles.card, { backgroundColor: colors.card }]}>
         <View style={styles.cardTituloRow}>
-          <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
-          <Text style={styles.cardTitulo}>¿Qué es EcoDucha?</Text>
+          <Layers size={18} color={colors.primary} strokeWidth={2} />
+          <Text style={[styles.cardTitulo, { color: colors.text }]}>¿Qué es EcoDucha?</Text>
         </View>
-        <Text style={styles.cardTexto}>
-          Sistema IoT que controla la temperatura de la ducha, mide el consumo de agua y energía en tiempo real, y almacena un historial de sesiones.
+        <Text style={[styles.cardTexto, { color: colors.text }]}>
+          Sistema IoT que controla la temperatura de la ducha, mide el consumo de agua y energía en tiempo real, y almacena un historial de sesiones en LittleFS.
         </Text>
-      </View>
+      </Animated.View>
 
-      <View style={styles.card}>
+      <Animated.View entering={FadeInDown.delay(200).springify()} style={[styles.card, { backgroundColor: colors.card }]}>
         <View style={styles.cardTituloRow}>
-          <Ionicons name="construct-outline" size={20} color={colors.primary} />
-          <Text style={styles.cardTitulo}>Hardware Utilizado</Text>
+          <Cpu size={18} color={colors.primary} strokeWidth={2} />
+          <Text style={[styles.cardTitulo, { color: colors.text }]}>Hardware Utilizado</Text>
         </View>
-        {hardware.map((h) => (
-          <View key={h.nombre} style={styles.hwItem}>
-            <View style={styles.hwIconBox}>
-              <Ionicons name={h.icono} size={22} color={colors.primary} />
+        {hardware.map((h, i) => (
+          <View
+            key={h.nombre}
+            style={[styles.hwItem, { borderBottomColor: colors.textLight + '30' }, i === hardware.length - 1 && { borderBottomWidth: 0 }]}
+          >
+            <View style={[styles.hwIconBox, { backgroundColor: colors.background }]}>
+              <h.Icon size={20} color={colors.primary} strokeWidth={2} />
             </View>
             <View style={styles.hwTexto}>
-              <Text style={styles.hwNombre}>{h.nombre}</Text>
-              <Text style={styles.hwDesc}>{h.desc}</Text>
+              <Text style={[styles.hwNombre, { color: colors.text }]}>{h.nombre}</Text>
+              <Text style={[styles.hwDesc, { color: colors.textLight }]}>{h.desc}</Text>
             </View>
           </View>
         ))}
-      </View>
+      </Animated.View>
 
-      <View style={styles.card}>
+      <Animated.View entering={FadeInDown.delay(300).springify()} style={[styles.card, { backgroundColor: colors.card }]}>
         <View style={styles.cardTituloRow}>
-          <Ionicons name="people-outline" size={20} color={colors.primary} />
-          <Text style={styles.cardTitulo}>Equipo de Desarrollo</Text>
+          <Users size={18} color={colors.primary} strokeWidth={2} />
+          <Text style={[styles.cardTitulo, { color: colors.text }]}>Equipo de Desarrollo</Text>
         </View>
-        {equipo.map((m) => (
-          <View key={m.nombre} style={styles.miembro}>
-            <View style={styles.miembroIconBox}>
-              <Ionicons name={m.icono} size={24} color={colors.primary} />
+        {equipo.map((m, i) => (
+          <View
+            key={m.nombre}
+            style={[styles.miembro, { borderBottomColor: colors.textLight + '30' }, i === equipo.length - 1 && { borderBottomWidth: 0 }]}
+          >
+            <View style={[styles.miembroIconBox, { backgroundColor: colors.background }]}>
+              <m.Icon size={22} color={colors.primary} strokeWidth={2} />
             </View>
             <View>
-              <Text style={styles.miembroNombre}>{m.nombre}</Text>
-              <Text style={styles.miembroRol}>{m.rol}</Text>
+              <Text style={[styles.miembroNombre, { color: colors.text }]}>{m.nombre}</Text>
+              <Text style={[styles.miembroRol, { color: colors.textLight }]}>{m.rol}</Text>
             </View>
           </View>
         ))}
-        <View style={styles.institucionRow}>
-          <Ionicons name="school-outline" size={16} color={colors.primary} />
-          <Text style={styles.institucion}>UETS Cuenca — 3.° BGU Informática</Text>
+        <View style={[styles.institucionRow, { borderTopColor: colors.textLight + '30' }]}>
+          <School size={14} color={colors.primary} strokeWidth={2} />
+          <Text style={[styles.institucion, { color: colors.primary }]}>UETS Cuenca — 3.° BGU Informática</Text>
         </View>
-      </View>
+      </Animated.View>
 
-      <TouchableOpacity
-        style={styles.webBtn}
-        onPress={() => Linking.openURL('https://pauldsvid12.github.io/ecoducha/')}
-      >
-        <Ionicons name="logo-github" size={20} color="#fff" style={{ marginRight: 10 }} />
-        <Text style={styles.webBtnTexto}>Ver Página del Proyecto</Text>
-      </TouchableOpacity>
-
-      <View style={{ height: 40 }} />
+      <Animated.View entering={FadeInDown.delay(400).springify()} style={{ marginHorizontal: 16, marginTop: 16 }}>
+        <WebButton colors={colors} />
+      </Animated.View>
     </ScrollView>
   );
 }
 
-const createStyles = (colors: ColorScheme, theme: string) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+const styles = StyleSheet.create({
+  container: { flex: 1 },
   header: { padding: 32, alignItems: 'center', paddingBottom: 24 },
   nombre: { color: '#fff', fontSize: 36, fontWeight: '900', marginTop: 8 },
   version: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 4 },
   slogan: { color: 'rgba(255,255,255,0.85)', fontSize: 14, textAlign: 'center', marginTop: 12, fontStyle: 'italic' },
-  card: {
-    backgroundColor: colors.card,
-    margin: 16, 
-    marginBottom: 0, 
-    borderRadius: 16, 
-    padding: 20,
-    shadowColor: '#000',
-    shadowOpacity: theme === 'dark' ? 0.2 : 0.06,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  cardTituloRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
-  cardTitulo: { fontSize: 15, fontWeight: '800', color: colors.text, marginLeft: 6 },
-  cardTexto: { fontSize: 14, color: colors.text, lineHeight: 22, opacity: 0.8 },
-  hwItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.textLight,
-  },
-  hwIconBox: {
-    backgroundColor: colors.background,
-    borderRadius: 10,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  card: { margin: 16, marginBottom: 0, borderRadius: 16, padding: 20, elevation: 3 },
+  cardTituloRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 14 },
+  cardTitulo: { fontSize: 15, fontWeight: '800' },
+  cardTexto: { fontSize: 14, lineHeight: 22, opacity: 0.8 },
+  hwItem: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1 },
+  hwIconBox: { borderRadius: 10, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   hwTexto: { flex: 1 },
-  hwNombre: { fontSize: 14, fontWeight: '700', color: colors.text },
-  hwDesc: { fontSize: 12, color: colors.textLight, marginTop: 2 },
-  miembro: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.textLight,
-  },
-  miembroIconBox: {
-    backgroundColor: colors.background,
-    borderRadius: 12,
-    width: 46,
-    height: 46,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  miembroNombre: { fontSize: 15, fontWeight: '700', color: colors.text },
-  miembroRol: { fontSize: 12, color: colors.textLight, marginTop: 2 },
-  institucionRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: 14, 
-    justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: colors.textLight,
-    paddingTop: 14,
-  },
-  institucion: { fontSize: 13, color: colors.primary, fontWeight: '600', marginLeft: 6 },
-  webBtn: {
-    backgroundColor: colors.dark,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
+  hwNombre: { fontSize: 14, fontWeight: '700' },
+  hwDesc: { fontSize: 12, marginTop: 2 },
+  miembro: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 10, borderBottomWidth: 1 },
+  miembroIconBox: { borderRadius: 12, width: 46, height: 46, alignItems: 'center', justifyContent: 'center' },
+  miembroNombre: { fontSize: 15, fontWeight: '700' },
+  miembroRol: { fontSize: 12, marginTop: 2 },
+  institucionRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14, justifyContent: 'center', borderTopWidth: 1, paddingTop: 14 },
+  institucion: { fontSize: 13, fontWeight: '600' },
+  webBtn: { borderRadius: 16, paddingVertical: 16, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 10 },
   webBtnTexto: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });
