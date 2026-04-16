@@ -1,100 +1,155 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useContext } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInRight } from 'react-native-reanimated';
+import {
+  Clock3,
+  Droplets,
+  LucideIcon,
+  ShieldCheck,
+  Thermometer,
+  Zap,
+} from 'lucide-react-native';
+import { ThemeContext } from '@/contexts/ThemeContext';
 
-interface Sesion {
-  id: string;
+interface SessionItemProps {
   fecha: string;
   hora: string;
-  duracion: number;
+  duracion: string;
   litros: number;
-  tempProm: number;
+  temperatura: number;
   energia: number;
-  costo: number;
+  eficiente?: boolean;
 }
 
-export function SessionItem({ sesion, colors }: { sesion: Sesion, colors: any }) {
-  const minutos = Math.floor(sesion.duracion / 60);
-  const segundos = sesion.duracion % 60;
-
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: colors.white,
-      borderRadius: 14,
-      padding: 14,
-      marginBottom: 10,
-      flexDirection: 'row',
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.06,
-      shadowRadius: 6,
-      elevation: 3,
-    },
-    fechaBox: { alignItems: 'center', width: 55 },
-    hora: { fontSize: 14, fontWeight: '700', color: colors.dark },
-    fecha: { fontSize: 10, color: colors.textLight, marginTop: 2 },
-    separador: {
-      width: 1,
-      height: '80%',
-      backgroundColor: colors.card === '#FFFFFF' ? '#E2E8F0' : '#334155',
-      marginHorizontal: 12,
-    },
-    datos: { flex: 1 },
-    fila: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-    datoItem: { flexDirection: 'row', alignItems: 'center' },
-    dato: { fontSize: 12, color: colors.text },
-    costoBox: {
-      alignItems: 'center',
-      backgroundColor: colors.background,
-      borderRadius: 10,
-      padding: 8,
-    },
-    costoLabel: { fontSize: 9, color: colors.textLight, fontWeight: '600' },
-    costo: { fontSize: 16, fontWeight: '800', color: colors.green },
-  });
-
+function MiniMetric({
+  Icon,
+  value,
+  color,
+}: {
+  Icon: LucideIcon;
+  value: string;
+  color: string;
+}) {
   return (
-    <View style={styles.container}>
-
-      {/* Fecha y hora */}
-      <View style={styles.fechaBox}>
-        <Text style={styles.hora}>{sesion.hora}</Text>
-        <Text style={styles.fecha}>{sesion.fecha.split('-').reverse().join('/')}</Text>
-      </View>
-
-      <View style={styles.separador} />
-
-      {/* Datos de la sesión */}
-      <View style={styles.datos}>
-        <View style={styles.fila}>
-          <View style={styles.datoItem}>
-            <Ionicons name="water-outline" size={13} color={colors.primary} />
-            <Text style={styles.dato}> {sesion.litros} L</Text>
-          </View>
-          <View style={styles.datoItem}>
-            <Ionicons name="flash-outline" size={13} color={colors.warning} />
-            <Text style={styles.dato}> {sesion.energia} kWh</Text>
-          </View>
-        </View>
-        <View style={styles.fila}>
-          <View style={styles.datoItem}>
-            <Ionicons name="thermometer-outline" size={13} color={colors.accent} />
-            <Text style={styles.dato}> {sesion.tempProm}°C</Text>
-          </View>
-          <View style={styles.datoItem}>
-            <Ionicons name="timer-outline" size={13} color={colors.textLight} />
-            <Text style={styles.dato}> {minutos}m {segundos}s</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Costo */}
-      <View style={styles.costoBox}>
-        <Text style={styles.costoLabel}>Costo</Text>
-        <Text style={styles.costo}>${sesion.costo.toFixed(2)}</Text>
-      </View>
-
+    <View style={styles.metric}>
+      <Icon size={14} color={color} strokeWidth={2.2} />
+      <Text style={styles.metricText}>{value}</Text>
     </View>
   );
 }
+
+export function SessionItem({
+  fecha,
+  hora,
+  duracion,
+  litros,
+  temperatura,
+  energia,
+  eficiente = false,
+}: SessionItemProps) {
+  const { colors } = useContext(ThemeContext);
+
+  return (
+    <Animated.View
+      entering={FadeInRight.springify()}
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: `${colors.primary}18`,
+        },
+      ]}
+    >
+      <View style={styles.header}>
+        <View>
+          <Text style={[styles.fecha, { color: colors.text }]}>{fecha}</Text>
+          <Text style={[styles.hora, { color: colors.textLight }]}>{hora}</Text>
+        </View>
+
+        <View
+          style={[
+            styles.badge,
+            {
+              backgroundColor: eficiente
+                ? 'rgba(34,197,94,0.16)'
+                : 'rgba(251,146,60,0.16)',
+            },
+          ]}
+        >
+          <ShieldCheck
+            size={14}
+            color={eficiente ? '#86EFAC' : '#FBBF24'}
+            strokeWidth={2.2}
+          />
+          <Text style={styles.badgeText}>
+            {eficiente ? 'Eficiente' : 'Alta demanda'}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.metricsRow}>
+        <MiniMetric Icon={Clock3} value={duracion} color="#7DD3FC" />
+        <MiniMetric Icon={Droplets} value={`${litros} L`} color="#22D3EE" />
+        <MiniMetric Icon={Thermometer} value={`${temperatura} °C`} color="#FB923C" />
+        <MiniMetric Icon={Zap} value={`${energia} kWh`} color="#A78BFA" />
+      </View>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    gap: 14,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  fecha: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  hora: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  badge: {
+    minHeight: 32,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  badgeText: {
+    color: '#F8FAFC',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  metric: {
+    minHeight: 30,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    backgroundColor: 'rgba(2,6,23,0.42)',
+    borderWidth: 1,
+    borderColor: 'rgba(125,211,252,0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  metricText: {
+    color: '#E0F2FE',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+});

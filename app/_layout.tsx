@@ -1,6 +1,8 @@
 import { Stack } from 'expo-router';
-import { ThemeProvider, ThemeContext } from '../contexts/ThemeContext';
 import { useContext } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ThemeContext, ThemeProvider } from '../contexts/ThemeContext';
 
 function AppLayout() {
   const { colors } = useContext(ThemeContext);
@@ -8,18 +10,20 @@ function AppLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: colors.card },
-        headerTintColor: colors.text,
-        headerTitleStyle: { color: colors.text, fontWeight: 'bold' },
+        headerStyle:      { backgroundColor: colors.card },
+        headerTintColor:  colors.primary,
+        headerTitleStyle: { color: colors.text, fontWeight: '800' },
+        animation:        'slide_from_right',
       }}
     >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="acerca" 
-        options={{ 
-          presentation: 'modal', 
-          title: 'Acerca de',
-        }} 
+      <Stack.Screen name="(tabs)"   options={{ headerShown: false }} />
+      <Stack.Screen name="welcome"  options={{ headerShown: false }} />
+      <Stack.Screen
+        name="acerca"
+        options={{
+          presentation: 'modal',
+          title:        'Acerca de EcoDucha',
+        }}
       />
     </Stack>
   );
@@ -27,8 +31,12 @@ function AppLayout() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <AppLayout />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <AppLayout />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

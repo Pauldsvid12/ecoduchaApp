@@ -1,70 +1,155 @@
-import React, { useContext, useMemo } from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useContext } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import { LucideIcon } from 'lucide-react-native';
 import { ThemeContext } from '@/contexts/ThemeContext';
 
 interface PrimaryButtonProps {
-  label: string;
-  onPress: () => void;
-  icono?: keyof typeof Ionicons.glyphMap;
-  /** Color de fondo. Por defecto usa colors.primary */
-  color?: string;
-  /** Muestra un spinner en lugar del ícono */
-  loading?: boolean;
+  title: string;
+  subtitle?: string;
+  onPress?: () => void;
+  Icon?: LucideIcon;
+  variant?: 'primary' | 'secondary' | 'ghost';
   disabled?: boolean;
-  style?: ViewStyle;
 }
 
-/**
- * Botón primario de acción reutilizable.
- * Reemplaza botonPrincipal, botonGuardar, botonReset, etc.
- *
- * @example
- * <PrimaryButton label="Iniciar Ducha" icono="play-circle-outline" onPress={toggle} color={colors.green} />
- * <PrimaryButton label="Sincronizar" icono="cloud-upload-outline" onPress={guardar} loading={saving} />
- */
 export function PrimaryButton({
-  label,
+  title,
+  subtitle,
   onPress,
-  icono,
-  color,
-  loading = false,
+  Icon,
+  variant = 'primary',
   disabled = false,
-  style,
 }: PrimaryButtonProps) {
   const { colors } = useContext(ThemeContext);
-  const bgColor = color ?? colors.primary;
+  const scale = useSharedValue(1);
 
-  const styles = useMemo(() => StyleSheet.create({
-    btn: {
-      borderRadius: 16,
-      paddingVertical: 18,
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      opacity: disabled ? 0.5 : 1,
-    },
-    label: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: '800',
-      marginLeft: icono || loading ? 8 : 0,
-    },
-  }), [disabled, icono, loading]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: disabled ? 0.55 : 1,
+  }));
+
+  const content = (
+    <View style={styles.inner}>
+      <View style={styles.textWrap}>
+        <Text
+          style={[
+            styles.title,
+            variant === 'ghost' && { color: colors.text },
+          ]}
+        >
+          {title}
+        </Text>
+
+        {subtitle ? (
+          <Text
+            style={[
+              styles.subtitle,
+              variant === 'ghost' && { color: colors.textLight },
+            ]}
+          >
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
+
+      {Icon ? (
+        <View style={styles.iconSlot}>
+          <Icon
+            size={18}
+            color={variant === 'ghost' ? colors.primary : '#FFFFFF'}
+            strokeWidth={2.4}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
 
   return (
-    <TouchableOpacity
-      style={[styles.btn, { backgroundColor: bgColor }, style]}
+    <Pressable
+      disabled={disabled}
       onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
+      onPressIn={() => {
+        scale.value = withSpring(0.985);
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1);
+      }}
     >
-      {loading ? (
-        <ActivityIndicator size="small" color="#fff" />
-      ) : (
-        icono && <Ionicons name={icono} size={20} color="#fff" />
-      )}
-      <Text style={styles.label}>{label}</Text>
-    </TouchableOpacity>
+      <Animated.View style={animatedStyle}>
+        {variant === 'primary' ? (
+          <LinearGradient
+            colors={['#06B6D4', '#3B82F6', '#8B5CF6']}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.primary}
+          >
+            {content}
+          </LinearGradient>
+        ) : (
+          <View
+            style={[
+              styles.secondary,
+              variant === 'ghost'
+                ? {
+                    backgroundColor: 'transparent',
+                    borderColor: `${colors.primary}22`,
+                  }
+                : {
+                    backgroundColor: colors.card,
+                    borderColor: `${colors.primary}18`,
+                  },
+            ]}
+          >
+            {content}
+          </View>
+        )}
+      </Animated.View>
+    </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  primary: {
+    minHeight: 56,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  secondary: {
+    minHeight: 56,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  inner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  textWrap: {
+    flex: 1,
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.2,
+  },
+  subtitle: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  iconSlot: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
