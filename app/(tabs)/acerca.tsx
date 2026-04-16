@@ -14,7 +14,7 @@ import Animated, {
   FadeInUp,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import {
   Code2,
@@ -75,7 +75,7 @@ type HardwareRowProps = {
 // --- Componentes ---
 function InfoRow({ Icon, title, subtitle, delay }: InfoRowProps) {
   return (
-    <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.infoRow}>
+    <Animated.View entering={FadeInDown.delay(delay)} style={styles.infoRow}>
       <View style={styles.infoIconWrap}>
         <Icon size={18} color="#7DD3FC" strokeWidth={2.2} />
       </View>
@@ -89,7 +89,7 @@ function InfoRow({ Icon, title, subtitle, delay }: InfoRowProps) {
 
 function TeamCard({ name, role, Icon, delay }: TeamCardProps) {
   return (
-    <Animated.View entering={FadeInUp.delay(delay).springify()} style={styles.teamCard}>
+    <Animated.View entering={FadeInUp.delay(delay)} style={styles.teamCard}>
       <View style={styles.teamIconWrap}>
         <Icon size={20} color="#7DD3FC" strokeWidth={2.2} />
       </View>
@@ -102,7 +102,7 @@ function TeamCard({ name, role, Icon, delay }: TeamCardProps) {
 function HardwareRow({ name, desc, Icon, delay, isLast }: HardwareRowProps) {
   return (
     <Animated.View
-      entering={FadeInDown.delay(delay).springify()}
+      entering={FadeInDown.delay(delay)}
       style={[
         styles.hardwareRow,
         !isLast && styles.hardwareRowBorder,
@@ -129,10 +129,10 @@ function LinkButton() {
   return (
     <Pressable
       onPressIn={() => {
-        scale.value = withSpring(0.985);
+        scale.value = withTiming(0.98, { duration: 150 });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1);
+        scale.value = withTiming(1, { duration: 150 });
       }}
       onPress={() => Linking.openURL('https://pauldsvid12.github.io/ecoducha/')}
     >
@@ -164,7 +164,7 @@ export default function AcercaScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <Animated.View entering={FadeInDown.springify()}>
+          <Animated.View entering={FadeInDown}>
             <AnimatedFrame
               radius={30}
               inset={8}
@@ -195,7 +195,7 @@ export default function AcercaScreen() {
             </AnimatedFrame>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(120).springify()} style={styles.sectionHeader}>
+          <Animated.View entering={FadeInDown.delay(120)} style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Identidad del proyecto</Text>
             <Text style={styles.sectionCaption}>
               Lo esencial de EcoDucha resumido en una sola vista
@@ -229,7 +229,7 @@ export default function AcercaScreen() {
             />
           </AnimatedFrame>
 
-          <Animated.View entering={FadeInDown.delay(340).springify()} style={styles.sectionHeader}>
+          <Animated.View entering={FadeInDown.delay(340)} style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Equipo</Text>
             <Text style={styles.sectionCaption}>
               Desarrollo técnico y construcción del prototipo
@@ -248,7 +248,7 @@ export default function AcercaScreen() {
             ))}
           </View>
 
-          <Animated.View entering={FadeInDown.delay(560).springify()} style={styles.sectionHeader}>
+          <Animated.View entering={FadeInDown.delay(560)} style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Hardware</Text>
             <Text style={styles.sectionCaption}>
               Componentes que hacen posible el sistema
@@ -274,7 +274,7 @@ export default function AcercaScreen() {
             ))}
           </AnimatedFrame>
 
-          <Animated.View entering={FadeInDown.delay(920).springify()} style={styles.sectionHeader}>
+          <Animated.View entering={FadeInDown.delay(920)} style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Origen académico</Text>
           </Animated.View>
 
@@ -291,7 +291,7 @@ export default function AcercaScreen() {
             </View>
           </AnimatedFrame>
 
-          <Animated.View entering={FadeInDown.delay(980).springify()} style={styles.linkWrap}>
+          <Animated.View entering={FadeInDown.delay(980)} style={styles.linkWrap}>
             <LinkButton />
           </Animated.View>
         </ScrollView>

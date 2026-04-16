@@ -63,7 +63,7 @@ type ProgressBarProps = {
 function MiniKpi({ label, valor, unidad, color, Icon, delay }: MiniKpiProps) {
   return (
     <Animated.View
-      entering={FadeInRight.delay(delay).springify()}
+      entering={FadeInRight.delay(delay)}
       style={[styles.miniKpi, { borderColor: `${color}25`, backgroundColor: `${color}0E` }]}
     >
       <View style={[styles.miniKpiIcon, { backgroundColor: `${color}20` }]}>
@@ -90,7 +90,7 @@ function BarItem({ mes, litros, kwh, maxLitros, index }: BarItemProps) {
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(index * 60).springify()}
+      entering={FadeInDown.delay(index * 60)}
       style={styles.barWrap}
     >
       <Text style={[styles.barKwh, { color: colors.textLight }]}>{kwh}</Text>
@@ -106,7 +106,7 @@ function SesionRow({ fecha, litros, tempProm, eficiente, delay }: SesionRowProps
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(delay).springify()}
+      entering={FadeInRight.delay(delay)}
       style={[styles.sesionRow, { borderBottomColor: colors.border }]}
     >
       <View
@@ -134,7 +134,7 @@ function ProgressBar({ label, valor, max, color, unidad, delay }: ProgressBarPro
   const barAnim = useAnimatedStyle(() => ({ width: width.value }));
 
   return (
-    <Animated.View entering={FadeInRight.delay(delay).springify()} style={styles.progressRow}>
+    <Animated.View entering={FadeInRight.delay(delay)} style={styles.progressRow}>
       <Text style={[styles.progressLabel, { color: colors.textLight }]}>{label}</Text>
       <View style={styles.progressTrackWrap}>
         <View style={[styles.progressTrack, { backgroundColor: `${color}18` }]}>
@@ -191,7 +191,7 @@ export default function EstadisticasScreen() {
         >
 
           {/* ── HEADER ─────────────────────────────────────────────────────── */}
-          <Animated.View entering={FadeInDown.springify()} style={styles.header}>
+          <Animated.View entering={FadeInDown} style={styles.header}>
             <View>
               <Text style={styles.headerEyebrow}>Análisis del prototipo</Text>
               <Text style={styles.headerTitulo}>Estadísticas</Text>
@@ -239,7 +239,7 @@ export default function EstadisticasScreen() {
 
           {/* ── GRÁFICA DE BARRAS MENSUAL ────────────────────────────────────── */}
           <Animated.View
-            entering={FadeInDown.delay(300).springify()}
+            entering={FadeInDown.delay(300)}
             style={[styles.card, { backgroundColor: `${colors.card}E8`, borderColor: colors.border }]}
           >
             <View style={styles.cardHeader}>
@@ -269,7 +269,7 @@ export default function EstadisticasScreen() {
 
           {/* ── BARRAS DE PROGRESO POR SESIÓN ───────────────────────────────── */}
           <Animated.View
-            entering={FadeInDown.delay(380).springify()}
+            entering={FadeInDown.delay(380)}
             style={[styles.card, { backgroundColor: `${colors.card}E8`, borderColor: colors.border }]}
           >
             <View style={styles.cardHeader}>
@@ -297,7 +297,7 @@ export default function EstadisticasScreen() {
 
           {/* ── ÚLTIMAS 5 SESIONES ───────────────────────────────────────────── */}
           <Animated.View
-            entering={FadeInDown.delay(460).springify()}
+            entering={FadeInDown.delay(460)}
             style={[styles.card, { backgroundColor: `${colors.card}E8`, borderColor: colors.border }]}
           >
             <View style={styles.cardHeader}>
@@ -322,7 +322,7 @@ export default function EstadisticasScreen() {
 
           {/* ── NOTA FOOTER ─────────────────────────────────────────────────── */}
           <Animated.View
-            entering={FadeInDown.delay(540).springify()}
+            entering={FadeInDown.delay(540)}
             style={styles.notaBanner}
           >
             <Text style={styles.notaText}>
