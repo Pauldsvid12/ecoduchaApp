@@ -24,22 +24,43 @@ import { sesiones, estadisticasMensuales, kpisGlobales } from '@/constants/MockD
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CHART_WIDTH = SCREEN_WIDTH - 36 - 40; // padding + ejes
 
-// ─── KPI Card pequeña ──────────────────────────────────────────────────────────
-function MiniKpi({
-  label,
-  valor,
-  unidad,
-  color,
-  Icon,
-  delay,
-}: {
+// ─── Tipos ────────────────────────────────────────────────────────────────────
+type MiniKpiProps = {
   label:  string;
   valor:  string;
   unidad: string;
   color:  string;
   Icon:   typeof Droplets;
   delay:  number;
-}) {
+};
+
+type BarItemProps = {
+  mes:      string;
+  litros:   number;
+  kwh:      number;
+  maxLitros: number;
+  index:    number;
+};
+
+type SesionRowProps = {
+  fecha:     string;
+  litros:    number;
+  tempProm:  number;
+  eficiente: boolean;
+  delay:     number;
+};
+
+type ProgressBarProps = {
+  label:  string;
+  valor:  number;
+  max:    number;
+  color:  string;
+  unidad: string;
+  delay:  number;
+};
+
+// ─── KPI Card pequeña ──────────────────────────────────────────────────────────
+function MiniKpi({ label, valor, unidad, color, Icon, delay }: MiniKpiProps) {
   return (
     <Animated.View
       entering={FadeInRight.delay(delay).springify()}
@@ -56,19 +77,7 @@ function MiniKpi({
 }
 
 // ─── Barra de gráfica ─────────────────────────────────────────────────────────
-function BarItem({
-  mes,
-  litros,
-  kwh,
-  maxLitros,
-  index,
-}: {
-  mes:      string;
-  litros:   number;
-  kwh:      number;
-  maxLitros: number;
-  index:    number;
-}) {
+function BarItem({ mes, litros, kwh, maxLitros, index }: BarItemProps) {
   const { colors } = useContext(ThemeContext);
   const heightPct = litros / maxLitros;
   const barH = useSharedValue(0);
@@ -92,19 +101,7 @@ function BarItem({
 }
 
 // ─── Fila de sesión reciente ───────────────────────────────────────────────────
-function SesionRow({
-  fecha,
-  litros,
-  tempProm,
-  eficiente,
-  delay,
-}: {
-  fecha:     string;
-  litros:    number;
-  tempProm:  number;
-  eficiente: boolean;
-  delay:     number;
-}) {
+function SesionRow({ fecha, litros, tempProm, eficiente, delay }: SesionRowProps) {
   const { colors } = useContext(ThemeContext);
 
   return (
@@ -126,21 +123,7 @@ function SesionRow({
 }
 
 // ─── Barra de progreso horizontal ─────────────────────────────────────────────
-function ProgressBar({
-  label,
-  valor,
-  max,
-  color,
-  unidad,
-  delay,
-}: {
-  label:  string;
-  valor:  number;
-  max:    number;
-  color:  string;
-  unidad: string;
-  delay:  number;
-}) {
+function ProgressBar({ label, valor, max, color, unidad, delay }: ProgressBarProps) {
   const { colors } = useContext(ThemeContext);
   const width = useSharedValue(0);
 
