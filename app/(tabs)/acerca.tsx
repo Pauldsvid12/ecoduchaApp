@@ -49,17 +49,31 @@ const hardware = [
   { name: 'LittleFS', desc: 'Sistema de archivos local en la flash del ESP32', Icon: Database },
 ];
 
-function InfoRow({
-  Icon,
-  title,
-  subtitle,
-  delay,
-}: {
+// --- Tipos ---
+type InfoRowProps = {
   Icon: LucideIcon;
   title: string;
   subtitle: string;
   delay: number;
-}) {
+};
+
+type TeamCardProps = {
+  name: string;
+  role: string;
+  Icon: LucideIcon;
+  delay: number;
+};
+
+type HardwareRowProps = {
+  name: string;
+  desc: string;
+  Icon: LucideIcon;
+  delay: number;
+  isLast: boolean;
+};
+
+// --- Componentes ---
+function InfoRow({ Icon, title, subtitle, delay }: InfoRowProps) {
   return (
     <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.infoRow}>
       <View style={styles.infoIconWrap}>
@@ -73,17 +87,7 @@ function InfoRow({
   );
 }
 
-function TeamCard({
-  name,
-  role,
-  Icon,
-  delay,
-}: {
-  name: string;
-  role: string;
-  Icon: LucideIcon;
-  delay: number;
-}) {
+function TeamCard({ name, role, Icon, delay }: TeamCardProps) {
   return (
     <Animated.View entering={FadeInUp.delay(delay).springify()} style={styles.teamCard}>
       <View style={styles.teamIconWrap}>
@@ -91,6 +95,26 @@ function TeamCard({
       </View>
       <Text style={styles.teamName}>{name}</Text>
       <Text style={styles.teamRole}>{role}</Text>
+    </Animated.View>
+  );
+}
+
+function HardwareRow({ name, desc, Icon, delay, isLast }: HardwareRowProps) {
+  return (
+    <Animated.View
+      entering={FadeInDown.delay(delay).springify()}
+      style={[
+        styles.hardwareRow,
+        !isLast && styles.hardwareRowBorder,
+      ]}
+    >
+      <View style={styles.hardwareIconWrap}>
+        <Icon size={18} color="#7DD3FC" strokeWidth={2.2} />
+      </View>
+      <View style={styles.hardwareText}>
+        <Text style={styles.hardwareName}>{name}</Text>
+        <Text style={styles.hardwareDesc}>{desc}</Text>
+      </View>
     </Animated.View>
   );
 }
@@ -239,22 +263,14 @@ export default function AcercaScreen() {
             contentContainerStyle={styles.hardwareContent}
           >
             {hardware.map((item, index) => (
-              <Animated.View
+              <HardwareRow
                 key={item.name}
-                entering={FadeInDown.delay(600 + index * 45).springify()}
-                style={[
-                  styles.hardwareRow,
-                  index !== hardware.length - 1 && styles.hardwareRowBorder,
-                ]}
-              >
-                <View style={styles.hardwareIconWrap}>
-                  <item.Icon size={18} color="#7DD3FC" strokeWidth={2.2} />
-                </View>
-                <View style={styles.hardwareText}>
-                  <Text style={styles.hardwareName}>{item.name}</Text>
-                  <Text style={styles.hardwareDesc}>{item.desc}</Text>
-                </View>
-              </Animated.View>
+                name={item.name}
+                desc={item.desc}
+                Icon={item.Icon}
+                delay={600 + index * 45}
+                isLast={index === hardware.length - 1}
+              />
             ))}
           </AnimatedFrame>
 

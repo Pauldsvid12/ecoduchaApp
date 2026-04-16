@@ -326,7 +326,7 @@ export default function EstadisticasScreen() {
             style={styles.notaBanner}
           >
             <Text style={styles.notaText}>
-              💾 Datos generados durante las pruebas del prototipo. En el dispositivo real, cada sesión se almacena como archivo JSON en LittleFS (flash del ESP32) y se sincroniza vía MQTT.
+              Datos generados durante las pruebas del prototipo. En el dispositivo real, cada sesión se almacena como archivo JSON en LittleFS (flash del ESP32) y se sincroniza vía MQTT.
             </Text>
           </Animated.View>
 
