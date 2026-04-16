@@ -13,8 +13,6 @@ import Animated, {
   FadeInRight,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { BarChart3, Droplets, Leaf, TrendingUp, Zap } from 'lucide-react-native';
@@ -164,19 +162,6 @@ export default function EstadisticasScreen() {
     [],
   );
 
-  // Pulso animado del ícono de header
-  const pulse = useSharedValue(1);
-  React.useEffect(() => {
-    pulse.value = withRepeat(
-      withSequence(
-        withTiming(1.08, { duration: 900 }),
-        withTiming(1,    { duration: 900 }),
-      ),
-      -1,
-    );
-  }, []);
-  const pulseStyle = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
-
   return (
     <LinearGradient
       colors={[colors.gradientStart, colors.gradientMid ?? colors.gradientEnd, colors.gradientEnd]}
@@ -196,9 +181,9 @@ export default function EstadisticasScreen() {
               <Text style={styles.headerEyebrow}>Análisis del prototipo</Text>
               <Text style={styles.headerTitulo}>Estadísticas</Text>
             </View>
-            <Animated.View style={[styles.headerIcon, pulseStyle]}>
+            <View style={styles.headerIcon}>
               <BarChart3 size={26} color="#FFFFFF" strokeWidth={1.8} />
-            </Animated.View>
+            </View>
           </Animated.View>
 
           {/* ── KPIs PRINCIPALES ────────────────────────────────────────────── */}
